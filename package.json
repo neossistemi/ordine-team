@@ -1,0 +1,9 @@
+{
+  "name": "ordine-ruote-team-neos",
+  "private": true,
+  "type": "module",
+  "description": "Ordine ruote atleti Team Neos Sistemi",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

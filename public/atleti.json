@@ -1,0 +1,74 @@
+[
+  {
+    "id": "falcioni",
+    "nome": "Viola",
+    "cognome": "Falcioni",
+    "gratis": 12
+  },
+  {
+    "id": "fava",
+    "nome": "Diego",
+    "cognome": "Fava",
+    "gratis": 8
+  },
+  {
+    "id": "illuminati",
+    "nome": "Chiara",
+    "cognome": "Illuminati",
+    "gratis": 12
+  },
+  {
+    "id": "libetti",
+    "nome": "Julia",
+    "cognome": "Libetti",
+    "gratis": 8
+  },
+  {
+    "id": "mori",
+    "nome": "Alessandro",
+    "cognome": "Mori",
+    "gratis": 8
+  },
+  {
+    "id": "panichelli",
+    "nome": "Nicola",
+    "cognome": "Panichelli",
+    "gratis": 8
+  },
+  {
+    "id": "pirillo",
+    "nome": "Marzia",
+    "cognome": "Pirillo",
+    "gratis": 8
+  },
+  {
+    "id": "ricci",
+    "nome": "Benedetta",
+    "cognome": "Ricci",
+    "gratis": 8
+  },
+  {
+    "id": "rosati",
+    "nome": "Victoria",
+    "cognome": "Rosati",
+    "gratis": 8
+  },
+  {
+    "id": "sciore",
+    "nome": "Eva",
+    "cognome": "Sciore",
+    "gratis": 8
+  },
+  {
+    "id": "sdrubolini",
+    "nome": "Davide",
+    "cognome": "Sdrubolini",
+    "gratis": 8
+  },
+  {
+    "id": "sprega",
+    "nome": "Olivia",
+    "cognome": "Sprega",
+    "gratis": 8
+  }
+]

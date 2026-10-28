@@ -1,0 +1,167 @@
+{
+  "esempio": false,
+  "ruote": [
+    {
+      "codice": "HYDROGEN-PRO-100-X",
+      "nome": "Hydrogen Pro 100 X Firm",
+      "dettagli": {
+        "Marca": "Hydrogen Pro",
+        "Diametro": "100 mm",
+        "Durezza": "X Firm"
+      }
+    },
+    {
+      "codice": "HYDROGEN-PRO-100-XX",
+      "nome": "Hydrogen Pro 100 XX Firm",
+      "dettagli": {
+        "Marca": "Hydrogen Pro",
+        "Diametro": "100 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "HYDROGEN-PRO-110-X",
+      "nome": "Hydrogen Pro 110 X Firm",
+      "dettagli": {
+        "Marca": "Hydrogen Pro",
+        "Diametro": "110 mm",
+        "Durezza": "X Firm"
+      }
+    },
+    {
+      "codice": "HYDROGEN-PRO-110-XX",
+      "nome": "Hydrogen Pro 110 XX Firm",
+      "dettagli": {
+        "Marca": "Hydrogen Pro",
+        "Diametro": "110 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "BLACK-MAGIC-100-X",
+      "nome": "Black Magic 100 X Firm",
+      "dettagli": {
+        "Marca": "Black Magic",
+        "Diametro": "100 mm",
+        "Durezza": "X Firm"
+      }
+    },
+    {
+      "codice": "BLACK-MAGIC-100-XX",
+      "nome": "Black Magic 100 XX Firm",
+      "dettagli": {
+        "Marca": "Black Magic",
+        "Diametro": "100 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "BLACK-MAGIC-110-X",
+      "nome": "Black Magic 110 X Firm",
+      "dettagli": {
+        "Marca": "Black Magic",
+        "Diametro": "110 mm",
+        "Durezza": "X Firm"
+      }
+    },
+    {
+      "codice": "BLACK-MAGIC-110-XX",
+      "nome": "Black Magic 110 XX Firm",
+      "dettagli": {
+        "Marca": "Black Magic",
+        "Diametro": "110 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "PIPER-TORCH-100-X",
+      "nome": "Piper Torch Pro 100 X Firm",
+      "dettagli": {
+        "Marca": "Piper Torch Pro",
+        "Diametro": "100 mm",
+        "Durezza": "X Firm"
+      }
+    },
+    {
+      "codice": "PIPER-TORCH-100-XX",
+      "nome": "Piper Torch Pro 100 XX Firm",
+      "dettagli": {
+        "Marca": "Piper Torch Pro",
+        "Diametro": "100 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "PIPER-TORCH-110-X",
+      "nome": "Piper Torch Pro 110 X Firm",
+      "dettagli": {
+        "Marca": "Piper Torch Pro",
+        "Diametro": "110 mm",
+        "Durezza": "X Firm"
+      }
+    },
+    {
+      "codice": "PIPER-TORCH-110-XX",
+      "nome": "Piper Torch Pro 110 XX Firm",
+      "dettagli": {
+        "Marca": "Piper Torch Pro",
+        "Diametro": "110 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "PIPER-TIME-100-XX",
+      "nome": "Piper Time Pro 100 XX Firm",
+      "dettagli": {
+        "Marca": "Piper Time Pro",
+        "Diametro": "100 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "PIPER-TIME-110-XX",
+      "nome": "Piper Time Pro 110 XX Firm",
+      "dettagli": {
+        "Marca": "Piper Time Pro",
+        "Diametro": "110 mm",
+        "Durezza": "XX Firm"
+      }
+    },
+    {
+      "codice": "MANAO-NIU-100-MEDIE",
+      "nome": "Manao Niu Medie 100",
+      "dettagli": {
+        "Marca": "Manao Niu",
+        "Diametro": "100 mm",
+        "Durezza": "X (medie)"
+      }
+    },
+    {
+      "codice": "MANAO-NIU-100-HARD",
+      "nome": "Manao Niu Hard 100",
+      "dettagli": {
+        "Marca": "Manao Niu",
+        "Diametro": "100 mm",
+        "Durezza": "XX (hard)"
+      }
+    },
+    {
+      "codice": "MANAO-NIU-110-MEDIE",
+      "nome": "Manao Niu Medie 110",
+      "dettagli": {
+        "Marca": "Manao Niu",
+        "Diametro": "110 mm",
+        "Durezza": "X (medie)"
+      }
+    },
+    {
+      "codice": "MANAO-NIU-110-HARD",
+      "nome": "Manao Niu Hard 110",
+      "dettagli": {
+        "Marca": "Manao Niu",
+        "Diametro": "110 mm",
+        "Durezza": "XX (hard)"
+      }
+    }
+  ]
+}
