@@ -28,19 +28,19 @@ Web app per far scegliere le ruote ai 12 atleti del team.
 
 ## Pubblicazione su Netlify (una volta sola)
 
-1. Crea un nuovo repository privato su GitHub (es. `ordine-ruote`) e carica tutti i file dello zip.
+1. Crea un nuovo repository su GitHub (es. `ordine-ruote`) e carica tutti i file dello zip.
 2. Su Netlify: **Add new site → Import an existing project → GitHub** e scegli il repository.
    Lascia vuoto il "Build command"; la cartella da pubblicare (`public`) è già indicata in `netlify.toml`.
    > Non usare il trascinamento della cartella (Netlify Drop): non attiva il salvataggio degli ordini.
 3. **Password amministratore**: *Site configuration → Environment variables → Add a variable*
    - Key: `ADMIN_PASSWORD` – Value: la password che vuoi usare.
    Poi *Deploys → Trigger deploy → Deploy site* per applicarla.
-4. **Email ad amministrazione@neossistemi.it**:
+4. **Email ad amministrazione@neossistemi.it**
    - *Forms* → se richiesto, **Enable form detection**, poi rifai il deploy.
-   - Dopo il deploy compare il modulo **ordine-ruote**.
-   - *Site configuration → Notifications → Emails and webhooks → Form submission notifications → Add notification → Email notification*:
-     Form `ordine-ruote`, email `amministrazione@neossistemi.it`.
-   Ogni ordine convalidato arriva via email con il riepilogo (ruote, gratis / a pagamento, note).
+   - *Forms → Submission notifications → Add notification → Email notification*:
+     form `ordine-ruote`, email `amministrazione@neossistemi.it`.
+   - Se usi Outlook e le righe dell'email risultano unite: *File → Opzioni → Posta → Formato messaggio* →
+     togli la spunta a "Rimuovi interruzioni di riga in eccesso nei messaggi di testo normale".
 5. Prova: fai un ordine di test, controlla che arrivi l'email e che compaia in `admin.html`, poi eliminalo dal pannello.
 
 ## Modifiche frequenti

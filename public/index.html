@@ -14,7 +14,8 @@
 
 <!-- Modulo nascosto: serve a Netlify per inviare l'email ad amministrazione -->
 <form name="ordine-ruote" data-netlify="true" netlify-honeypot="bot-field" hidden>
-  <input name="subject"><input name="atleta"><textarea name="riepilogo"></textarea><input name="bot-field">
+  <input name="subject"><input name="atleta"><input name="ordine"><input name="totale">
+  <textarea name="ruote"></textarea><input name="stagione"><textarea name="note"></textarea><input name="bot-field">
 </form>
 
 <header class="top">
@@ -263,19 +264,25 @@ function renderHistory() {
     : '<p class="muted">Non hai ancora inviato ordini.</p>';
 }
 
-function riepilogo(o) {
-  const L = [`ORDINE RUOTE N. ${o.numero} – ${o.nome}`, `Inviato il: ${N.data(o.inviatoIl)}`,
-    `Ruote gratis stagione: ${o.gratisStagione} (già usate prima di questo ordine: ${o.gratisUsatePrima})`, ''];
-  for (const r of o.righe) {
-    const p = [];
-    if (r.gratis) p.push(`${r.gratis} GRATIS`);
-    if (r.pagamento) p.push(`${r.pagamento} A PAGAMENTO`);
-    L.push(`- ${r.nome} (cod. ${r.codice}) x ${r.qta}  →  ${p.join(' + ')}`);
-  }
-  L.push('', `TOTALE: ${o.totale} ruote (${o.totaleGratis} gratis, ${o.totalePagamento} a pagamento)`);
-  L.push(`Ruote gratis ancora disponibili: ${Math.max(o.gratisStagione - o.gratisUsatePrima - o.totaleGratis, 0)}`);
-  if (o.note) L.push('', 'Note: ' + o.note);
-  return L.join('\n');
+// Campi dell'email di Netlify: uno per riga, con simboli colorati per leggere subito gratis / a pagamento.
+// Ogni riga termina con due spazi: evita che Outlook unisca le righe.
+function campiEmail(o) {
+  const rimaste = Math.max(o.gratisStagione - o.gratisUsatePrima - o.totaleGratis, 0);
+  const righe = o.righe.map(r => {
+    const icona = r.pagamento ? (r.gratis ? '🟩🟧' : '🟧') : '🟩';
+    const parti = [r.gratis && `${r.gratis} GRATIS`, r.pagamento && `${r.pagamento} A PAGAMENTO`].filter(Boolean).join(' + ');
+    return `${icona}  ${r.qta} × ${r.nome}  →  ${parti}  `;
+  });
+  const campi = {
+    subject: `🛼 Ordine ruote n. ${o.numero} – ${o.nome} (${o.totale} ruote)`,
+    atleta: `${o.nome.toUpperCase()}  `,
+    ordine: `N. ${o.numero} del ${N.data(o.inviatoIl).replace(',', ' alle')}  `,
+    totale: `${o.totale} ruote   ▸   🟩 ${o.totaleGratis} GRATIS   ▸   🟧 ${o.totalePagamento} A PAGAMENTO  `,
+    ruote: righe.join('\n\n'),
+    stagione: `Ruote gratis della stagione: ${o.gratisStagione}   ·   usate prima di questo ordine: ${o.gratisUsatePrima}   ·   rimaste: ${rimaste}  `,
+  };
+  if (o.note) campi.note = o.note;
+  return campi;
 }
 
 async function send() {
@@ -290,7 +297,7 @@ async function send() {
     try {
       const r = await fetch('/', {
         method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ 'form-name': 'ordine-ruote', subject: `Ordine ruote n. ${o.numero} – ${o.nome}`, atleta: o.nome, riepilogo: riepilogo(o) }).toString()
+        body: new URLSearchParams({ 'form-name': 'ordine-ruote', ...campiEmail(o) }).toString()
       });
       mailOk = r.ok;
     } catch { mailOk = false; }
