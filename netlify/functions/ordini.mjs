@@ -1,12 +1,15 @@
-// API ordini ruote: salva un ordine per atleta in Netlify Blobs.
-//   GET  /api/ordini?atleta=<id>        -> ordine dell'atleta (o null)
-//   POST /api/ordini {atleta,righe,note} -> salva/sostituisce l'ordine
-//   GET  /api/ordini?tutti=1            -> tutti gli ordini      (header x-admin-password)
-//   DELETE /api/ordini?atleta=<id>      -> elimina un ordine     (header x-admin-password)
+// API ordini ruote (Netlify Blobs). Ogni ordine convalidato resta nello storico.
+// Le ruote gratis (8, o 12) valgono per tutta la stagione: si consumano ordine dopo ordine.
+//   GET    /api/ordini?atleta=<id>        -> storico dell'atleta + ruote gratis rimaste
+//   POST   /api/ordini {atleta,righe,note} -> nuovo ordine
+//   GET    /api/ordini?tutti=1            -> tutti gli ordini          (header x-admin-password)
+//   PATCH  /api/ordini?ordine=<chiave> {stato} -> "da_ordinare" | "ordinato" (header x-admin-password)
+//   DELETE /api/ordini?ordine=<chiave>    -> elimina un ordine         (header x-admin-password)
 import { getStore } from "@netlify/blobs";
 import atleti from "../../public/atleti.json";
 
 const ATL = Object.fromEntries(atleti.map(a => [a.id, a]));
+const store = () => getStore({ name: "ordini-ruote", consistency: "strong" });
 
 const json = (data, status = 200) =>
   new Response(JSON.stringify(data), {
@@ -19,9 +22,10 @@ export function alloca(righe, gratis) {
   return righe.map(r => {
     const g = Math.min(r.qta, Math.max(resto, 0));
     resto -= g;
-    return { ...r, gratis: g, pagamento: r.qta - g };
+    return { codice: r.codice, nome: r.nome, qta: r.qta, gratis: g, pagamento: r.qta - g };
   });
 }
+const somma = righe => righe.reduce((s, r) => ({ tot: s.tot + r.qta, g: s.g + r.gratis, p: s.p + r.pagamento }), { tot: 0, g: 0, p: 0 });
 
 function controllaAdmin(req) {
   const pw = process.env.ADMIN_PASSWORD;
@@ -30,21 +34,51 @@ function controllaAdmin(req) {
   return null;
 }
 
+// Tutti gli ordini di un atleta, dal più vecchio (compatibile con la prima versione: chiave "ordine-<id>")
+async function ordiniAtleta(s, id) {
+  const { blobs } = await s.list({ prefix: "ordine-" + id });
+  const keys = blobs.map(b => b.key).filter(k => k === "ordine-" + id || k.startsWith("ordine-" + id + "-"));
+  const list = (await Promise.all(keys.map(async k => {
+    const o = await s.get(k, { type: "json" });
+    return o ? { stato: "da_ordinare", ...o, chiave: k } : null;
+  }))).filter(Boolean);
+  return list.sort((a, b) => a.inviatoIl.localeCompare(b.inviatoIl));
+}
+
+// Ricalcola gratis/a pagamento in ordine cronologico (serve dopo l'eliminazione di un ordine)
+async function ricalcola(s, id) {
+  const a = ATL[id]; let usate = 0; const out = [];
+  const lista = await ordiniAtleta(s, id);
+  for (const [i, o] of lista.entries()) {
+    const righe = alloca(o.righe, a.gratis - usate), t = somma(righe);
+    const nuovo = { ...o, numero: i + 1, gratisStagione: a.gratis, gratisUsatePrima: usate, righe, totale: t.tot, totaleGratis: t.g, totalePagamento: t.p };
+    usate += t.g;
+    if (JSON.stringify(nuovo) !== JSON.stringify(o)) { const { chiave, ...dati } = nuovo; await s.setJSON(o.chiave, dati); }
+    out.push(nuovo);
+  }
+  return out;
+}
+
+const riepilogoAtleta = (a, ordini) => {
+  const usate = ordini.reduce((s, o) => s + o.totaleGratis, 0);
+  return { gratisStagione: a.gratis, gratisUsate: usate, gratisRestanti: Math.max(a.gratis - usate, 0) };
+};
+
 export default async (req) => {
   const url = new URL(req.url);
-  const store = getStore({ name: "ordini-ruote", consistency: "strong" });
+  const s = store();
 
   if (req.method === "GET" && url.searchParams.has("tutti")) {
     const no = controllaAdmin(req); if (no) return no;
-    const { blobs } = await store.list({ prefix: "ordine-" });
-    const ordini = (await Promise.all(blobs.map(b => store.get(b.key, { type: "json" })))).filter(Boolean);
+    const ordini = (await Promise.all(atleti.map(a => ordiniAtleta(s, a.id)))).flat();
     return json({ ordini, atleti });
   }
 
   if (req.method === "GET") {
-    const id = url.searchParams.get("atleta");
-    if (!ATL[id]) return json({ errore: "Atleta non trovato." }, 404);
-    return json({ ordine: (await store.get("ordine-" + id, { type: "json" })) || null });
+    const a = ATL[url.searchParams.get("atleta")];
+    if (!a) return json({ errore: "Atleta non trovato." }, 404);
+    const ordini = await ordiniAtleta(s, a.id);
+    return json({ ordini, ...riepilogoAtleta(a, ordini) });
   }
 
   if (req.method === "POST") {
@@ -59,30 +93,43 @@ export default async (req) => {
       .slice(0, 60);
     if (!righe.length) return json({ errore: "Il carrello è vuoto." }, 400);
 
-    const key = "ordine-" + a.id;
-    const prima = await store.get(key, { type: "json" });
-    const allocate = alloca(righe, a.gratis);
-    const t = allocate.reduce((s, r) => ({ tot: s.tot + r.qta, g: s.g + r.gratis, p: s.p + r.pagamento }), { tot: 0, g: 0, p: 0 });
+    const prima = await ordiniAtleta(s, a.id);
+    const usate = prima.reduce((n, o) => n + o.totaleGratis, 0);
+    const allocate = alloca(righe, a.gratis - usate), t = somma(allocate);
+    const ora = new Date().toISOString();
+    const chiave = `ordine-${a.id}-${Date.now()}`;
     const ordine = {
-      atleta: a.id,
-      nome: `${a.nome} ${a.cognome}`,
-      gratisPreviste: a.gratis,
-      righe: allocate,
-      totale: t.tot, totaleGratis: t.g, totalePagamento: t.p,
+      atleta: a.id, nome: `${a.nome} ${a.cognome}`, numero: prima.length + 1,
+      gratisStagione: a.gratis, gratisUsatePrima: usate,
+      righe: allocate, totale: t.tot, totaleGratis: t.g, totalePagamento: t.p,
       note: String(body.note ?? "").slice(0, 1000).trim(),
-      inviatoIl: new Date().toISOString(),
-      primoInvio: prima?.primoInvio || prima?.inviatoIl || new Date().toISOString(),
-      modifiche: prima ? (prima.modifiche || 0) + 1 : 0,
+      inviatoIl: ora,
+      stato: "da_ordinare",
     };
-    await store.setJSON(key, ordine);
-    return json({ ordine });
+    await s.setJSON(chiave, ordine);
+    const ordini = [...prima, { ...ordine, chiave }];
+    return json({ ordine: { ...ordine, chiave }, ordini, ...riepilogoAtleta(a, ordini) });
+  }
+
+  if (req.method === "PATCH") {
+    const no = controllaAdmin(req); if (no) return no;
+    const chiave = url.searchParams.get("ordine") || "";
+    let body; try { body = await req.json(); } catch { body = {}; }
+    if (!["da_ordinare", "ordinato"].includes(body.stato)) return json({ errore: "Stato non valido." }, 400);
+    const o = chiave.startsWith("ordine-") ? await s.get(chiave, { type: "json" }) : null;
+    if (!o) return json({ errore: "Ordine non trovato." }, 404);
+    const nuovo = { ...o, stato: body.stato, evasoIl: body.stato === "ordinato" ? new Date().toISOString() : null };
+    await s.setJSON(chiave, nuovo);
+    return json({ ordine: { ...nuovo, chiave } });
   }
 
   if (req.method === "DELETE") {
     const no = controllaAdmin(req); if (no) return no;
-    const id = url.searchParams.get("atleta");
-    if (!ATL[id]) return json({ errore: "Atleta non trovato." }, 404);
-    await store.delete("ordine-" + id);
+    const chiave = url.searchParams.get("ordine") || "";
+    const id = atleti.find(a => chiave === "ordine-" + a.id || chiave.startsWith("ordine-" + a.id + "-"))?.id;
+    if (!id) return json({ errore: "Ordine non trovato." }, 404);
+    await s.delete(chiave);
+    await ricalcola(s, id);
     return json({ ok: true });
   }
 

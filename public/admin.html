@@ -13,50 +13,65 @@
   .wrap{padding-bottom:40px}
   .login{max-width:380px;margin:30px auto;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:22px;display:grid;gap:12px}
   .login input{padding:12px 14px;border:1px solid var(--line);border-radius:var(--r)}
-  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
-  .toolbar .actions{gap:8px}
-  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+  .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+  .toolbar .actions{gap:8px;align-items:center}
+  select{padding:9px 12px;border:1px solid var(--line);border-radius:999px;background:#fff;font-weight:600}
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
   .stat{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:12px 14px}
   .stat b{display:block;font:800 italic 32px/1 var(--f-display);color:var(--navy);font-variant-numeric:tabular-nums}
-  .stat.free b{color:var(--free)} .stat.paid b{color:var(--paid)}
+  .stat.todo b{color:var(--pink)} .stat.free b{color:var(--free)} .stat.paid b{color:var(--paid)}
   .stat span{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
-  .tabs{display:flex;gap:6px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
-  .tabs button{border:0;background:none;padding:10px 14px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px}
+  .stat small{display:block;margin-top:2px;font-size:13px;color:var(--muted);font-weight:500}
+  .tabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:2px solid var(--line)}
+  .tabs button{border:0;background:none;padding:10px 14px;font-weight:700;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;display:inline-flex;gap:6px;align-items:center}
   .tabs button[aria-selected=true]{color:var(--navy);border-color:var(--pink)}
-  .order{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:12px}
-  .order-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:flex-start}
-  .order-head h3{font-size:24px;font-style:italic;font-weight:800;color:var(--navy)}
+  .badge{background:var(--pink);color:#fff;border-radius:999px;font-size:12px;padding:1px 8px;font-variant-numeric:tabular-nums}
+  .badge.done{background:var(--free)}
+  .tab-intro{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+  .group{background:#fff;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .group-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px;padding:14px 16px;background:#eef2f9;border-bottom:1px solid var(--line)}
+  .group-head h3{font-size:26px;font-style:italic;font-weight:800;color:var(--navy)}
+  .order{padding:14px 16px;display:grid;gap:10px;border-top:1px solid var(--line)}
+  .order:first-child{border-top:0}
+  .order-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;align-items:center}
+  .order-head h4{margin:0;font:700 19px/1.1 var(--f-display);text-transform:uppercase;color:var(--navy)}
+  .btn.ok{background:var(--free)}
   .tbl{overflow-x:auto}
   table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
-  th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
+  th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:middle}
   th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
   td.n,th.n{text-align:right}
   tfoot td{font-weight:700;border-bottom:0}
   td .chip{font-size:12px}
-  .missing{display:grid;gap:8px}
   .miss{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:10px 14px}
   .miss code{font-size:12px;color:var(--muted);word-break:break-all}
-  .del-confirm{display:flex;flex-wrap:wrap;gap:8px;align-items:center;background:#fde8e6;border-radius:var(--r);padding:10px 12px;color:var(--danger)}
+  .confirm-row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;border-radius:var(--r);padding:10px 12px}
+  .confirm-row.danger{background:#fde8e6;color:var(--danger)}
+  .confirm-row.good{background:var(--free-bg);color:var(--free)}
+  .seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:#fff}
+  .seg button{border:0;background:none;padding:8px 14px;font-weight:700;color:var(--muted)}
+  .seg button[aria-pressed=true]{background:var(--navy);color:#fff}
   .print-head{display:none}
   .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:999px;z-index:9}
   @media print{
     @page{size:A4;margin:14mm}
-    body{background:#fff;font-size:12pt}
-    .top,.toolbar,.stats,.tabs,.no-print,.toast,#tab-missing{display:none!important}
+    body{background:#fff;font-size:11pt}
+    .top,.toolbar,.stats,.tabs,.no-print,.toast,#tab-links{display:none!important}
     .wrap{padding:0;max-width:none}
-    [data-panel]{display:block!important}
     .print-head{display:flex;align-items:center;gap:14px;margin-bottom:10px;border-bottom:2px solid #0b2a55;padding-bottom:8px}
     .print-head img{height:46px}
     .print-head h2{margin:0;font-size:20pt}
-    .order{border:0;padding:0;break-inside:avoid}
-    .order + .order{break-before:page}
-    #tab-totals{break-before:page}
+    .group{border:0;border-radius:0}
+    .group-head{background:none;padding:0 0 6px}
+    .order{padding:10px 0;break-inside:avoid}
+    .group + .group{break-before:page}
     .chip,.alloc div{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-    body.p-one .order:not(.printing),body.p-one #tab-totals{display:none!important}
-    body.p-one .order.printing{break-before:auto}
-    body.p-totals #tab-orders{display:none!important}
-    body.p-totals #tab-totals{break-before:auto}
-    body.p-orders #tab-totals{display:none!important}
+    body.p-one .group:not(:has(.order.printing)),body.p-one .order:not(.printing),body.p-one .group-print-head,body.p-one .group-head{display:none!important}
+    body.p-one .order-print-head{display:flex!important}
+    body:not(.p-one) .order-print-head{display:none!important}
+    body.p-group .group:not(.printing){display:none!important}
+    body.p-totals [data-panel]{display:none!important}
+    body.p-totals #tab-totals{display:block!important}
   }
 </style>
 </head>
@@ -79,37 +94,44 @@
 
   <div id="app" class="stack" hidden>
     <div class="toolbar">
-      <span class="muted small" id="updated"></span>
+      <div class="actions">
+        <label for="filtro" class="small muted">Atleta</label>
+        <select id="filtro"></select>
+        <span class="muted small" id="updated"></span>
+      </div>
       <div class="actions">
         <button class="btn small ghost" id="reload">Aggiorna</button>
-        <button class="btn small" id="print-all">Stampa tutti gli ordini</button>
-        <button class="btn small ghost" id="print-totals">Stampa totale per ruota</button>
+        <button class="btn small" id="print-tab">Stampa questa scheda</button>
         <button class="link" id="logout">Esci</button>
       </div>
     </div>
     <div class="stats" id="stats"></div>
     <div class="tabs" role="tablist">
-      <button role="tab" data-tab="orders" aria-selected="true">Ordini</button>
-      <button role="tab" data-tab="missing" aria-selected="false">Da ordinare</button>
+      <button role="tab" data-tab="todo" aria-selected="true">Da ordinare <span class="badge" id="b-todo">0</span></button>
+      <button role="tab" data-tab="done" aria-selected="false">Ordinati <span class="badge done" id="b-done">0</span></button>
       <button role="tab" data-tab="totals" aria-selected="false">Totale per ruota</button>
+      <button role="tab" data-tab="links" aria-selected="false">Atleti e link</button>
     </div>
-    <section id="tab-orders" data-panel class="stack"></section>
-    <section id="tab-missing" data-panel class="stack" hidden></section>
+    <section id="tab-todo" data-panel class="stack"></section>
+    <section id="tab-done" data-panel class="stack" hidden></section>
     <section id="tab-totals" data-panel class="stack" hidden></section>
+    <section id="tab-links" data-panel class="stack" hidden></section>
   </div>
 </main>
 
 <script src="common.js"></script>
 <script>
 const N = NEOS, $ = s => document.querySelector(s);
-let PW = '', DATA = { ordini: [], atleti: [] }, delPending = null;
+let PW = '', DATA = { ordini: [], atleti: [] }, pending = null, filtro = '', totMode = 'todo', tab = 'todo';
 const ss = { get(k) { try { return sessionStorage.getItem(k) || ''; } catch { return ''; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch {} }, del(k) { try { sessionStorage.removeItem(k); } catch {} } };
+const H = () => ({ 'x-admin-password': PW, 'Content-Type': 'application/json' });
 
 function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2200); }
 
 async function load() {
-  DATA = await N.json('/api/ordini?tutti=1', { headers: { 'x-admin-password': PW } });
+  DATA = await N.json('/api/ordini?tutti=1', { headers: H() });
   $('#updated').textContent = 'Aggiornato alle ' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  $('#filtro').innerHTML = '<option value="">Tutti</option>' + DATA.atleti.map(a => `<option value="${a.id}" ${a.id === filtro ? 'selected' : ''}>${N.esc(a.cognome)} ${N.esc(a.nome)}</option>`).join('');
   render();
 }
 
@@ -119,100 +141,165 @@ async function login(pw) {
   catch (e) { $('#login').hidden = false; $('#app').hidden = true; $('#login-err').textContent = e.message; $('#login-err').hidden = !pw; ss.del('pw'); }
 }
 
-const byName = (a, b) => a.nome.split(' ').slice(1).join(' ').localeCompare(b.nome.split(' ').slice(1).join(' '));
-const printHead = t => `<div class="print-head"><img src="logo-blu.png" alt=""><div><div class="small muted">Team Neos Sistemi · Stagione 2026/2027</div><h2>${t}</h2></div></div>`;
+const printHead = (t, cls = '') => `<div class="print-head ${cls}"><img src="logo-blu.png" alt=""><div><div class="small muted">Team Neos Sistemi · Stagione 2026/2027</div><h2>${t}</h2></div></div>`;
+const tot = list => list.reduce((s, o) => ({ n: s.n + 1, tot: s.tot + o.totale, g: s.g + o.totaleGratis, p: s.p + o.totalePagamento }), { n: 0, tot: 0, g: 0, p: 0 });
+const giorno = iso => N.data(iso).split(',')[0];
 
-function orderCard(o) {
+function orderHtml(o) {
+  const done = o.stato === 'ordinato';
   const rows = o.righe.map(r => `<tr><td><b>${N.esc(r.nome)}</b><br><span class="small muted">${N.esc(r.codice)}</span></td>
     <td class="n">${r.qta}</td>
     <td class="n">${r.gratis ? `<span class="chip free">${r.gratis} gratis</span>` : '–'}</td>
     <td class="n">${r.pagamento ? `<span class="chip paid">${r.pagamento} a pag.</span>` : '–'}</td></tr>`).join('');
-  return `<article class="order" data-id="${o.atleta}">
-    ${printHead('Ordine ruote – ' + N.esc(o.nome))}
+  let conf = '';
+  if (pending?.key === o.chiave && pending.act === 'del') conf = `<div class="confirm-row danger no-print">Eliminare l'ordine n. ${o.numero} di ${N.esc(o.nome)}? Le ruote gratis degli ordini successivi verranno ricalcolate.
+      <button class="btn small danger" data-do="del" data-key="${N.esc(o.chiave)}">Elimina</button><button class="btn small ghost" data-cancel>Annulla</button></div>`;
+  return `<article class="order" data-key="${N.esc(o.chiave)}">
+    ${printHead(`Ordine ruote n. ${o.numero} – ${N.esc(o.nome)}`, 'order-print-head')}
     <div class="order-head">
-      <div><h3>${N.esc(o.nome)}</h3>
-        <div class="small muted">Inviato il ${N.data(o.inviatoIl)}${o.modifiche ? ` · modificato ${o.modifiche} ${o.modifiche === 1 ? 'volta' : 'volte'} (primo invio ${N.data(o.primoInvio)})` : ''} · ${o.gratisPreviste} ruote gratis previste</div></div>
+      <div><h4>Ordine n. ${o.numero}</h4>
+        <div class="small muted">Ricevuto il ${N.data(o.inviatoIl)}${done && o.evasoIl ? ` · <span class="chip free">✓ Evaso il ${giorno(o.evasoIl)}</span>` : ''}</div></div>
       <div class="actions no-print">
-        <button class="btn small" data-print="${o.atleta}">Stampa</button>
-        <button class="btn small ghost" data-del="${o.atleta}">Elimina</button>
+        ${done
+          ? `<button class="btn small ghost" data-do="undo" data-key="${N.esc(o.chiave)}">Riporta in "Da ordinare"</button>`
+          : `<button class="btn small ok" data-do="evadi" data-key="${N.esc(o.chiave)}">✓ Ordine evaso</button>`}
+        <button class="btn small ghost" data-print-one="${N.esc(o.chiave)}">Stampa</button>
+        <button class="btn small ghost" data-ask-del="${N.esc(o.chiave)}">Elimina</button>
       </div>
     </div>
-    ${delPending === o.atleta ? `<div class="del-confirm no-print">Eliminare l'ordine di ${N.esc(o.nome)}? L'atleta potrà rifarlo.
-      <button class="btn small danger" data-del-yes="${o.atleta}">Elimina</button><button class="btn small ghost" data-del-no>Annulla</button></div>` : ''}
+    ${conf}
     <div class="tbl"><table>
       <thead><tr><th>Ruota</th><th class="n">Q.tà</th><th class="n">Gratis</th><th class="n">A pagamento</th></tr></thead>
       <tbody>${rows}</tbody>
-      <tfoot><tr><td>Totale</td><td class="n">${o.totale}</td><td class="n">${o.totaleGratis}</td><td class="n">${o.totalePagamento}</td></tr></tfoot>
+      <tfoot><tr><td>Totale ordine</td><td class="n">${o.totale}</td><td class="n">${o.totaleGratis}</td><td class="n">${o.totalePagamento}</td></tr></tfoot>
     </table></div>
     ${o.note ? `<div><b>Note:</b> ${N.esc(o.note)}</div>` : ''}
   </article>`;
 }
 
+function groups(stato, titolo) {
+  const sel = DATA.atleti.filter(a => !filtro || a.id === filtro);
+  return sel.map(a => {
+    const tutti = DATA.ordini.filter(o => o.atleta === a.id);
+    const lista = tutti.filter(o => o.stato === stato).sort((x, y) => y.inviatoIl.localeCompare(x.inviatoIl));
+    if (!lista.length) return '';
+    const s = tot(lista), st = tot(tutti);
+    return `<section class="group" data-id="${a.id}">
+      ${printHead(`${titolo} – ${N.esc(a.nome)} ${N.esc(a.cognome)}`, 'group-print-head')}
+      <div class="group-head">
+        <div><h3>${N.esc(a.nome)} ${N.esc(a.cognome)}</h3>
+          <div class="small muted">${s.n} ${s.n === 1 ? 'ordine' : 'ordini'} · ${s.tot} ruote${s.p ? ` (${s.p} a pagamento)` : ''} · stagione: gratis usate <b>${st.g} di ${a.gratis}</b></div></div>
+        <button class="btn small ghost no-print" data-print-group="${stato}:${a.id}">Stampa</button>
+      </div>
+      <div>${lista.map(orderHtml).join('')}</div>
+    </section>`;
+  }).join('');
+}
+
 function render() {
-  const ordini = [...DATA.ordini].sort(byName), atleti = DATA.atleti;
-  const t = ordini.reduce((s, o) => ({ tot: s.tot + o.totale, g: s.g + o.totaleGratis, p: s.p + o.totalePagamento }), { tot: 0, g: 0, p: 0 });
+  const vis = DATA.ordini.filter(o => !filtro || o.atleta === filtro);
+  const todo = vis.filter(o => o.stato !== 'ordinato'), done = vis.filter(o => o.stato === 'ordinato');
+  const tt = tot(todo), td = tot(done), ta = tot(vis);
+  $('#b-todo').textContent = tt.n; $('#b-done').textContent = td.n;
   $('#stats').innerHTML = `
-    <div class="stat"><b>${ordini.length}<small style="font-size:18px"> / ${atleti.length}</small></b><span>Ordini ricevuti</span></div>
-    <div class="stat"><b>${t.tot}</b><span>Ruote totali</span></div>
-    <div class="stat free"><b>${t.g}</b><span>Gratis</span></div>
-    <div class="stat paid"><b>${t.p}</b><span>A pagamento</span></div>`;
+    <div class="stat todo"><b>${tt.n}</b><span>Da ordinare</span> <small>${tt.tot} ruote</small></div>
+    <div class="stat"><b>${td.n}</b><span>Ordinati</span> <small>${td.tot} ruote</small></div>
+    <div class="stat"><b>${ta.tot}</b><span>Ruote totali</span></div>
+    <div class="stat free"><b>${ta.g}</b><span>Gratis</span></div>
+    <div class="stat paid"><b>${ta.p}</b><span>A pagamento</span></div>`;
 
-  $('#tab-orders').innerHTML = ordini.length ? ordini.map(orderCard).join('') : '<p class="muted">Nessun ordine ricevuto finora.</p>';
+  const allConf = pending?.act === 'all'
+    ? `<div class="confirm-row good">Segnare come evasi tutti i ${tt.n} ordini da ordinare${filtro ? ' di questo atleta' : ''}?
+        <button class="btn small ok" data-do="all">Sì, tutti evasi</button><button class="btn small ghost" data-cancel>Annulla</button></div>` : '';
+  $('#tab-todo').innerHTML = tt.n
+    ? `<div class="tab-intro no-print"><span class="muted">Ordini ricevuti dagli atleti e non ancora ordinati al fornitore. Con <b>✓ Ordine evaso</b> passano in "Ordinati".</span>
+        <button class="btn small ok" data-ask-all>✓ Segna tutti come evasi</button></div>${allConf}${groups('da_ordinare', 'Ordini da ordinare')}`
+    : '<p class="muted">Nessun ordine da ordinare. 👍</p>';
+  $('#tab-done').innerHTML = td.n
+    ? `<p class="muted no-print" style="margin:0">Archivio degli ordini evasi, per atleta.</p>${groups('ordinato', 'Ordini evasi')}`
+    : '<p class="muted">Nessun ordine evaso finora.</p>';
 
-  const fatti = new Set(ordini.map(o => o.atleta));
-  const mancano = atleti.filter(a => !fatti.has(a.id));
   const base = location.origin + location.pathname.replace(/admin\.html$/, '');
-  $('#tab-missing').innerHTML = `
+  const sel = DATA.atleti.filter(a => !filtro || a.id === filtro);
+  $('#tab-links').innerHTML = `
     <p class="muted" style="margin:0">Link generale da mandare a tutti: <code>${N.esc(base)}</code> <button class="btn small ghost" data-copy="${N.esc(base)}">Copia</button></p>
-    <p class="muted small" style="margin:0">Oppure il link personale di ogni atleta, che apre direttamente il suo ordine:</p>
-    <div class="missing">${atleti.map(a => {
-      const l = `${base}?atleta=${a.id}`;
-      return `<div class="miss"><div><b>${N.esc(a.nome)} ${N.esc(a.cognome)}</b> ${fatti.has(a.id) ? '<span class="chip free">ordinato</span>' : '<span class="chip paid">da ordinare</span>'}<br><code>${N.esc(l)}</code></div>
+    <p class="muted small" style="margin:0">Oppure il link personale di ogni atleta, che apre direttamente la sua pagina:</p>
+    ${sel.map(a => {
+      const l = `${base}?atleta=${a.id}`, mine = DATA.ordini.filter(o => o.atleta === a.id), s = tot(mine);
+      const nt = mine.filter(o => o.stato !== 'ordinato').length;
+      return `<div class="miss"><div><b>${N.esc(a.nome)} ${N.esc(a.cognome)}</b>
+        ${s.n ? `<span class="chip incart">${s.n} ${s.n === 1 ? 'ordine' : 'ordini'}</span>` : '<span class="chip" style="background:#eef1f6;color:var(--muted)">nessun ordine</span>'}
+        ${nt ? `<span class="chip paid">${nt} da ordinare</span>` : ''}
+        <span class="chip free">gratis rimaste ${Math.max(a.gratis - s.g, 0)} di ${a.gratis}</span><br><code>${N.esc(l)}</code></div>
         <button class="btn small ghost" data-copy="${N.esc(l)}">Copia link</button></div>`;
-    }).join('')}</div>
-    ${mancano.length ? '' : '<p><span class="chip free">Tutti gli atleti hanno ordinato</span></p>'}`;
+    }).join('')}`;
 
+  const base2 = totMode === 'todo' ? todo : vis, t2 = tot(base2);
   const per = {};
-  for (const o of ordini) for (const r of o.righe) {
-    const k = r.codice; per[k] ??= { codice: k, nome: r.nome, tot: 0, g: 0, p: 0, chi: [] };
-    per[k].tot += r.qta; per[k].g += r.gratis; per[k].p += r.pagamento; per[k].chi.push(`${o.nome.split(' ')[0]} ${o.nome.split(' ').slice(1).join(' ')} (${r.qta})`);
+  for (const o of base2) for (const r of o.righe) {
+    const k = r.codice; per[k] ??= { nome: r.nome, codice: k, tot: 0, g: 0, p: 0, chi: {} };
+    per[k].tot += r.qta; per[k].g += r.gratis; per[k].p += r.pagamento; per[k].chi[o.nome] = (per[k].chi[o.nome] || 0) + r.qta;
   }
   const rows = Object.values(per).sort((a, b) => a.nome.localeCompare(b.nome));
-  $('#tab-totals').innerHTML = printHead('Totale ruote da ordinare') + (rows.length ? `<div class="tbl" style="background:#fff;border:1px solid var(--line);border-radius:var(--r)"><table>
+  $('#tab-totals').innerHTML = `
+    <div class="tab-intro no-print"><span class="muted">${totMode === 'todo' ? 'Ruote da chiedere al fornitore (solo ordini da ordinare).' : 'Tutte le ruote ordinate nella stagione.'}</span>
+      <div class="seg"><button data-tot="todo" aria-pressed="${totMode === 'todo'}">Da ordinare</button><button data-tot="all" aria-pressed="${totMode === 'all'}">Tutti gli ordini</button></div></div>
+    ${printHead((totMode === 'todo' ? 'Ruote da ordinare' : 'Totale ruote stagione') + (filtro ? ' – ' + N.esc(sel[0].nome + ' ' + sel[0].cognome) : ''))}
+    ${rows.length ? `<div class="tbl" style="background:#fff;border:1px solid var(--line);border-radius:var(--r)"><table>
     <thead><tr><th>Ruota</th><th>Atleti</th><th class="n">Gratis</th><th class="n">A pagamento</th><th class="n">Totale</th></tr></thead>
-    <tbody>${rows.map(r => `<tr><td><b>${N.esc(r.nome)}</b><br><span class="small muted">${N.esc(r.codice)}</span></td><td class="small">${N.esc(r.chi.join(', '))}</td>
+    <tbody>${rows.map(r => `<tr><td><b>${N.esc(r.nome)}</b><br><span class="small muted">${N.esc(r.codice)}</span></td>
+      <td class="small">${N.esc(Object.entries(r.chi).map(([n, q]) => `${n} (${q})`).join(', '))}</td>
       <td class="n">${r.g}</td><td class="n">${r.p}</td><td class="n"><b>${r.tot}</b></td></tr>`).join('')}</tbody>
-    <tfoot><tr><td colspan="2">Totale</td><td class="n">${t.g}</td><td class="n">${t.p}</td><td class="n">${t.tot}</td></tr></tfoot></table></div>` : '<p class="muted">Nessun ordine ricevuto finora.</p>');
+    <tfoot><tr><td colspan="2">Totale</td><td class="n">${t2.g}</td><td class="n">${t2.p}</td><td class="n">${t2.tot}</td></tr></tfoot></table></div>` : '<p class="muted">Nessuna ruota.</p>'}`;
 }
 
-function doPrint(mode, id) {
-  document.body.classList.remove('p-one', 'p-totals', 'p-orders');
-  document.querySelectorAll('.order.printing').forEach(e => e.classList.remove('printing'));
-  document.body.classList.add('p-' + mode);
-  if (id) document.querySelector(`.order[data-id="${id}"]`)?.classList.add('printing');
+async function setStato(keys, stato) {
+  for (const k of keys) await N.json('/api/ordini?ordine=' + encodeURIComponent(k), { method: 'PATCH', headers: H(), body: JSON.stringify({ stato }) });
+}
+
+function doPrint(mode, sel) {
+  document.body.classList.remove('p-one', 'p-group', 'p-totals');
+  document.querySelectorAll('.printing').forEach(e => e.classList.remove('printing'));
+  if (mode) document.body.classList.add('p-' + mode);
+  if (sel) document.querySelector(sel)?.classList.add('printing');
   setTimeout(() => window.print(), 50);
 }
-window.addEventListener('afterprint', () => document.body.classList.remove('p-one', 'p-totals', 'p-orders'));
+window.addEventListener('afterprint', () => document.body.classList.remove('p-one', 'p-group', 'p-totals'));
 
 document.addEventListener('click', async e => {
   const t = e.target.closest('button'); if (!t) return;
-  if (t.dataset.tab) {
+  const d = t.dataset;
+  if (d.tab) {
+    tab = d.tab;
     document.querySelectorAll('[role=tab]').forEach(b => b.setAttribute('aria-selected', b === t));
-    document.querySelectorAll('[data-panel]').forEach(p => p.hidden = p.id !== 'tab-' + t.dataset.tab);
+    document.querySelectorAll('[data-panel]').forEach(p => p.hidden = p.id !== 'tab-' + tab);
+    $('#print-tab').hidden = tab === 'links';
   }
-  if (t.dataset.print) doPrint('one', t.dataset.print);
-  if (t.dataset.del) { delPending = t.dataset.del; render(); }
-  if ('delNo' in t.dataset) { delPending = null; render(); }
-  if (t.dataset.delYes) {
-    try { await N.json('/api/ordini?atleta=' + t.dataset.delYes, { method: 'DELETE', headers: { 'x-admin-password': PW } }); delPending = null; await load(); toast('Ordine eliminato'); }
-    catch (err) { toast(err.message); }
+  if (d.tot) { totMode = d.tot; render(); }
+  if (d.printOne) doPrint('one', `.order[data-key="${CSS.escape(d.printOne)}"]`);
+  if (d.printGroup) { const [st, id] = d.printGroup.split(':'); doPrint('group', `#tab-${st === 'ordinato' ? 'done' : 'todo'} .group[data-id="${CSS.escape(id)}"]`); }
+  if (d.askDel) { pending = { act: 'del', key: d.askDel }; render(); }
+  if ('askAll' in d) { pending = { act: 'all' }; render(); }
+  if ('cancel' in d) { pending = null; render(); }
+  if (d.do) {
+    t.disabled = true;
+    try {
+      if (d.do === 'del') { await N.json('/api/ordini?ordine=' + encodeURIComponent(d.key), { method: 'DELETE', headers: H() }); toast('Ordine eliminato'); }
+      if (d.do === 'evadi') { await setStato([d.key], 'ordinato'); toast('Ordine spostato in "Ordinati"'); }
+      if (d.do === 'undo') { await setStato([d.key], 'da_ordinare'); toast('Ordine riportato in "Da ordinare"'); }
+      if (d.do === 'all') {
+        const keys = DATA.ordini.filter(o => o.stato !== 'ordinato' && (!filtro || o.atleta === filtro)).map(o => o.chiave);
+        await setStato(keys, 'ordinato'); toast(`${keys.length} ordini spostati in "Ordinati"`);
+      }
+      pending = null; await load();
+    } catch (err) { toast(err.message); t.disabled = false; }
   }
-  if (t.dataset.copy) {
-    try { await navigator.clipboard.writeText(t.dataset.copy); toast('Link copiato'); } catch { toast('Copia non riuscita: seleziona il link a mano'); }
+  if (d.copy) {
+    try { await navigator.clipboard.writeText(d.copy); toast('Link copiato'); } catch { toast('Copia non riuscita: seleziona il link a mano'); }
   }
 });
-$('#print-all').onclick = () => doPrint('orders');
-$('#print-totals').onclick = () => doPrint('totals');
+$('#filtro').onchange = e => { filtro = e.target.value; pending = null; render(); };
+$('#print-tab').onclick = () => doPrint(tab === 'totals' ? 'totals' : null);
 $('#reload').onclick = () => load().then(() => toast('Aggiornato')).catch(e => toast(e.message));
 $('#logout').onclick = () => { ss.del('pw'); location.reload(); };
 $('#login').onsubmit = e => { e.preventDefault(); login($('#pw').value); };

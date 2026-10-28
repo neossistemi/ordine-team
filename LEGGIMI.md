@@ -4,12 +4,15 @@ Web app per far scegliere le ruote ai 12 atleti del team.
 
 - **Atleti** → `https://<tuo-sito>.netlify.app/`
   Scelgono il proprio nome (nessuna password), le ruote e le quantità, poi convalidano l'ordine.
-  Le prime 8 ruote sono **GRATIS** (12 per Falcioni e Illuminati), le successive **A PAGAMENTO**.
-  Se un atleta rientra, ritrova il suo ordine e può modificarlo: il nuovo invio sostituisce il precedente.
-  Link personale (apre direttamente l'atleta): `https://<tuo-sito>.netlify.app/?atleta=falcioni`
+  Le ruote gratis valgono per tutta la stagione (8, oppure 12 per Falcioni e Illuminati): le prime sono **GRATIS**, le successive **A PAGAMENTO**.
+  Un ordine convalidato non si modifica: per altre ruote si fa un nuovo ordine. In "I miei ordini" l'atleta vede lo storico e lo stato (In attesa / Ordinato).
+  Link personale: `https://<tuo-sito>.netlify.app/?atleta=falcioni`
 - **Amministratore** → `https://<tuo-sito>.netlify.app/admin.html`
-  Elenco ordini, chi deve ancora ordinare (con i link personali da copiare), totale per tipo di ruota,
-  stampa del singolo ordine, di tutti gli ordini o del totale per ruota, eliminazione di un ordine.
+  - **Da ordinare**: ordini ricevuti; con **✓ Ordine evaso** passano in "Ordinati" (anche tutti insieme).
+  - **Ordinati**: archivio per atleta; un ordine si può riportare in "Da ordinare".
+  - **Totale per ruota**: quante ruote chiedere al fornitore (solo da ordinare, oppure tutta la stagione).
+  - **Atleti e link**: link personali, ordini fatti e ruote gratis rimaste.
+  - Filtro per atleta, stampa di un ordine, di un atleta o della scheda intera; eliminazione con ricalcolo delle ruote gratis.
 
 ## File
 

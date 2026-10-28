@@ -40,16 +40,19 @@
     <div class="athletes" id="athletes"></div>
   </section>
 
-  <!-- 2. catalogo -->
-  <section id="v-shop" class="stack" hidden>
-    <div class="who">
-      <div><span class="muted small">Ordine di</span><br><strong id="who-name"></strong></div>
+  <!-- riquadro atleta, comune alle schermate successive -->
+  <div class="who" id="who" hidden>
+    <div><span class="muted small">Atleta</span><br><strong id="who-name"></strong></div>
+    <div class="who-links">
+      <button class="btn small ghost" id="go-history">I miei ordini <span id="n-ord"></span></button>
       <button class="link" id="change">Non sei tu? Cambia</button>
     </div>
-    <div id="existing" class="note-box" hidden></div>
-    <div id="example" class="note-box" hidden>Elenco ruote di prova: quello definitivo arriverà a breve.</div>
+  </div>
+
+  <!-- 2. catalogo -->
+  <section id="v-shop" class="stack" hidden>
     <div>
-      <h2>Scegli le ruote</h2>
+      <h2>Nuovo ordine</h2>
       <p class="lead" id="rule"></p>
     </div>
     <input class="search" id="q" type="search" placeholder="Cerca per nome, misura, durezza…" aria-label="Cerca ruota">
@@ -59,10 +62,7 @@
 
   <!-- 3. carrello -->
   <section id="v-cart" class="stack" hidden>
-    <div class="who">
-      <div><span class="muted small">Ordine di</span><br><strong id="who-name-2"></strong></div>
-      <button class="link" id="back">← Torna alle ruote</button>
-    </div>
+    <div class="actions"><button class="link" id="back">← Torna alle ruote</button></div>
     <h2>Il tuo carrello</h2>
     <div class="meter" id="meter"></div>
     <div class="cart" id="cart"></div>
@@ -89,9 +89,20 @@
       <div class="big">Ordine inviato</div>
       <p id="done-txt" style="margin:0"></p>
       <div id="done-mail" class="small muted"></div>
-      <div class="cart" id="done-list" style="width:100%;text-align:left"></div>
-      <button class="btn ghost" id="again">Modifica l'ordine</button>
+      <div id="done-order" style="width:100%;text-align:left"></div>
+      <div class="actions" style="justify-content:center">
+        <button class="btn ghost" data-nav="history">Vedi i miei ordini</button>
+        <button class="btn" data-nav="shop">Fai un nuovo ordine</button>
+      </div>
     </div>
+  </section>
+
+  <!-- 5. storico -->
+  <section id="v-history" class="stack" hidden>
+    <div class="actions"><button class="link" data-nav="shop">← Torna alle ruote</button></div>
+    <h2>I miei ordini</h2>
+    <div class="meter" id="season"></div>
+    <div class="stack" id="history"></div>
   </section>
 </main>
 
@@ -105,48 +116,53 @@
 <script src="common.js"></script>
 <script>
 const N = NEOS, $ = s => document.querySelector(s);
-let ATLETI = [], RUOTE = [], me = null, cart = [], existing = null, filtro = '';
+let ATLETI = [], RUOTE = [], me = null, cart = [], filtro = '', diam = '';
+let ORD = [], restanti = 0;   // storico dell'atleta e ruote gratis ancora disponibili nella stagione
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 
 function show(v) {
-  for (const id of ['choose', 'shop', 'cart', 'done']) $('#v-' + id).hidden = id !== v;
+  for (const id of ['choose', 'shop', 'cart', 'done', 'history']) $('#v-' + id).hidden = id !== v;
+  $('#who').hidden = v === 'choose';
   $('#bar').hidden = v !== 'shop';
+  if (v === 'shop') { renderGrid(); renderBar(); renderRule(); }
+  if (v === 'cart') renderCart();
+  if (v === 'history') renderHistory();
   window.scrollTo(0, 0);
 }
 
 async function init() {
   try {
     const [a, r] = await Promise.all([N.json('atleti.json'), N.json('ruote.json')]);
-    ATLETI = a; RUOTE = r.ruote; $('#example').hidden = !r.esempio;
+    ATLETI = a; RUOTE = r.ruote;
   } catch (e) { $('#fatal').textContent = 'Impossibile caricare i dati: ' + e.message; $('#fatal').hidden = false; return; }
   finally { $('#loading').hidden = true; }
   $('#athletes').innerHTML = ATLETI.map(a => `
     <button class="athlete" data-id="${a.id}">
       <span class="n">${N.esc(a.nome)}</span><span class="c">${N.esc(a.cognome)}</span>
-      <span class="g">${a.gratis} ruote gratis</span>
     </button>`).join('');
   const qp = new URLSearchParams(location.search).get('atleta');
   const id = (qp || store.get('atleta') || '').toLowerCase();
   if (ATLETI.some(a => a.id === id)) select(id); else show('choose');
 }
 
+function applica(d) {
+  ORD = d.ordini || []; restanti = d.gratisRestanti ?? me.gratis;
+  $('#n-ord').textContent = ORD.length ? `(${ORD.length})` : '';
+}
+
 async function select(id) {
   me = ATLETI.find(a => a.id === id); store.set('atleta', id);
-  $('#who-name').textContent = $('#who-name-2').textContent = `${me.nome} ${me.cognome}`;
-  $('#rule').innerHTML = `Le prime <b>${me.gratis} ruote</b> sono <span class="chip free">gratis</span> &nbsp;le altre sono <span class="chip paid">a pagamento</span>`;
-  cart = []; existing = null; $('#existing').hidden = true; $('#note').value = '';
-  show('shop'); renderGrid(); renderBar();
-  try {
-    const d = await N.json('/api/ordini?atleta=' + encodeURIComponent(id));
-    existing = d.ordine;
-  } catch { existing = null; }
-  if (existing && me && existing.atleta === me.id) {
-    cart = existing.righe.map(r => ({ codice: r.codice, nome: r.nome, qta: r.qta }));
-    $('#note').value = existing.note || '';
-    $('#existing').innerHTML = `Hai già inviato un ordine il <b>${N.data(existing.inviatoIl)}</b>. Le ruote sono già nel carrello: puoi modificarle e inviare di nuovo. Il nuovo ordine sostituisce il precedente.`;
-    $('#existing').hidden = false;
-    renderGrid(); renderBar();
-  }
+  $('#who-name').textContent = `${me.nome} ${me.cognome}`;
+  cart = []; $('#note').value = ''; ORD = []; restanti = me.gratis; $('#n-ord').textContent = '';
+  show('shop');
+  try { applica(await N.json('/api/ordini?atleta=' + encodeURIComponent(id))); } catch {}
+  if (me && me.id === id && !$('#v-shop').hidden) { renderRule(); renderBar(); }
+}
+
+function renderRule() {
+  $('#rule').innerHTML = restanti > 0
+    ? `Hai ancora <b>${restanti} ${restanti === 1 ? 'ruota' : 'ruote'}</b> <span class="chip free">gratis</span> per questa stagione. Le ruote oltre questo numero sono <span class="chip paid">a pagamento</span>`
+    : `Hai già usato tutte le ruote gratis della stagione: le ruote di questo ordine sono <span class="chip paid">a pagamento</span>`;
 }
 
 const qtyOf = c => (cart.find(r => r.codice === c) || {}).qta || 0;
@@ -167,7 +183,6 @@ function stepper(codice, q) {
     <button data-step="1" data-c="${N.esc(codice)}" ${q >= 99 ? 'disabled' : ''} aria-label="Aggiungi una">+</button></div>`;
 }
 
-let diam = '';
 function renderFilters() {
   const ds = [...new Set(RUOTE.map(r => (r.dettagli || {}).Diametro).filter(Boolean))].sort();
   $('#filters').hidden = ds.length < 2;
@@ -184,44 +199,73 @@ function renderGrid() {
     return `<article class="wheel ${q ? 'in' : ''}">
       <div><div class="code">${N.esc(r.codice)}</div><h3>${N.esc(r.nome)}</h3></div>
       ${specs ? `<ul class="specs">${specs}</ul>` : ''}
-      <div class="row">${q ? '<span class="chip free" style="background:#e3ecfb;color:var(--blue)">Nel carrello</span>' : '<span class="muted small">Quantità</span>'}${stepper(r.codice, q)}</div>
+      <div class="row">${q ? '<span class="chip incart">Nel carrello</span>' : '<span class="muted small">Quantità</span>'}${stepper(r.codice, q)}</div>
     </article>`;
   }).join('') || '<p class="muted">Nessuna ruota corrisponde alla ricerca.</p>';
 }
 
 function renderBar() {
-  const t = N.totali(N.alloca(cart, me ? me.gratis : 0));
+  const t = N.totali(N.alloca(cart, restanti));
   $('#bar-sum').innerHTML = t.tot
-    ? `<strong>${t.tot}</strong> ruote <span class="chip free">${t.gratis} gratis</span>${t.pagamento ? `<span class="chip paid">${t.pagamento} a pagamento</span>` : ''}`
+    ? `<strong>${t.tot}</strong> ruote ${t.gratis ? `<span class="chip free">${t.gratis} gratis</span>` : ''}${t.pagamento ? `<span class="chip paid">${t.pagamento} a pagamento</span>` : ''}`
     : `<span>Nessuna ruota scelta</span>`;
   $('#go-cart').disabled = !t.tot;
 }
 
+function allocHtml(r) {
+  return `<div class="alloc">
+    ${r.gratis ? `<div class="free"><span>${r.gratis} ${r.gratis === 1 ? 'ruota' : 'ruote'}</span><b>GRATIS</b></div>` : ''}
+    ${r.pagamento ? `<div class="paid"><span>${r.pagamento} ${r.pagamento === 1 ? 'ruota' : 'ruote'}</span><b>A PAGAMENTO</b></div>` : ''}
+  </div>`;
+}
+
 function renderCart() {
-  const righe = N.alloca(cart, me.gratis), t = N.totali(righe);
-  const usate = Math.min(t.gratis, me.gratis), tot = Math.max(t.tot, me.gratis);
+  const righe = N.alloca(cart, restanti), t = N.totali(righe);
+  const scala = Math.max(t.tot, restanti, 1);
   $('#meter').innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <span>Ruote gratis usate: <b>${usate} di ${me.gratis}</b></span>
+      <span>Ruote gratis in questo ordine: <b>${t.gratis}</b>${restanti ? ` (disponibili ${restanti})` : ''}</span>
       <span><b>${t.tot}</b> ruote in totale</span>
     </div>
-    <div class="meter-track" aria-hidden="true"><i class="f" style="width:${usate / tot * 100}%"></i><i class="p" style="width:${t.pagamento / tot * 100}%"></i></div>
-    <div class="small muted">${t.pagamento ? `<span class="chip paid">${t.pagamento} a pagamento</span> oltre le ${me.gratis} gratis` : me.gratis - usate ? `Puoi scegliere ancora ${me.gratis - usate} ruote gratis.` : 'Hai usato tutte le ruote gratis.'}</div>`;
+    <div class="meter-track" aria-hidden="true"><i class="f" style="width:${t.gratis / scala * 100}%"></i><i class="p" style="width:${t.pagamento / scala * 100}%"></i></div>
+    <div class="small muted">${t.pagamento ? `<span class="chip paid">${t.pagamento} a pagamento</span> oltre le ruote gratis` : restanti - t.gratis > 0 ? `Puoi scegliere ancora ${restanti - t.gratis} ruote gratis.` : 'Hai usato tutte le ruote gratis.'}</div>`;
   $('#cart').innerHTML = righe.map(r => `
     <div class="line">
       <div class="line-head"><div><div class="code muted small">${N.esc(r.codice)}</div><h3>${N.esc(r.nome)}</h3></div>${stepper(r.codice, r.qta)}</div>
-      <div class="alloc">
-        ${r.gratis ? `<div class="free"><span>${r.gratis} ${r.gratis === 1 ? 'ruota' : 'ruote'}</span><b>GRATIS</b></div>` : ''}
-        ${r.pagamento ? `<div class="paid"><span>${r.pagamento} ${r.pagamento === 1 ? 'ruota' : 'ruote'}</span><b>A PAGAMENTO</b></div>` : ''}
-      </div>
+      ${allocHtml(r)}
     </div>`).join('');
   $('#cart-empty').hidden = !!righe.length;
   $('#cart-end').hidden = !righe.length;
-  $('#confirm-txt').textContent = `${t.tot} ruote: ${t.gratis} gratis${t.pagamento ? ` e ${t.pagamento} a pagamento` : ''}. L'ordine sarà inviato all'amministrazione.`;
+  $('#confirm-txt').textContent = `${t.tot} ruote: ${t.gratis} gratis${t.pagamento ? ` e ${t.pagamento} a pagamento` : ''}. Una volta inviato, l'ordine non si può più modificare: per altre ruote potrai fare un nuovo ordine.`;
+}
+
+function orderHtml(o) {
+  return `<article class="hist">
+    <div class="hist-head">
+      <div><h3>Ordine n. ${o.numero}</h3><div class="small muted">${N.data(o.inviatoIl)}</div>
+        <div style="margin-top:6px">${o.stato === 'ordinato' ? `<span class="chip free">✓ Ordinato${o.evasoIl ? ' il ' + N.data(o.evasoIl).split(',')[0] : ''}</span>` : '<span class="chip paid" style="background:#eef1f6;color:var(--muted)">In attesa</span>'}</div></div>
+      <div class="chips"><span class="chip incart">${o.totale} ruote</span>${o.totaleGratis ? `<span class="chip free">${o.totaleGratis} gratis</span>` : ''}${o.totalePagamento ? `<span class="chip paid">${o.totalePagamento} a pag.</span>` : ''}</div>
+    </div>
+    ${o.righe.map(r => `<div class="hist-row"><span><b>${N.esc(r.nome)}</b> × ${r.qta}</span><span class="chips">${r.gratis ? `<span class="chip free">${r.gratis} gratis</span>` : ''}${r.pagamento ? `<span class="chip paid">${r.pagamento} a pag.</span>` : ''}</span></div>`).join('')}
+    ${o.note ? `<div class="small"><b>Note:</b> ${N.esc(o.note)}</div>` : ''}
+  </article>`;
+}
+
+function renderHistory() {
+  const usate = me.gratis - restanti, tot = ORD.reduce((s, o) => s + o.totale, 0);
+  $('#season').innerHTML = `
+    <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
+      <span>Ruote gratis della stagione usate: <b>${usate} di ${me.gratis}</b></span><span><b>${tot}</b> ruote ordinate</span>
+    </div>
+    <div class="meter-track" aria-hidden="true"><i class="f" style="width:${usate / me.gratis * 100}%"></i></div>`;
+  $('#history').innerHTML = ORD.length
+    ? [...ORD].reverse().map(orderHtml).join('')
+    : '<p class="muted">Non hai ancora inviato ordini.</p>';
 }
 
 function riepilogo(o) {
-  const L = [`ORDINE RUOTE – ${o.nome}`, `Inviato il: ${N.data(o.inviatoIl)}${o.modifiche ? ` (modifica n. ${o.modifiche})` : ''}`, `Ruote gratis previste: ${o.gratisPreviste}`, ''];
+  const L = [`ORDINE RUOTE N. ${o.numero} – ${o.nome}`, `Inviato il: ${N.data(o.inviatoIl)}`,
+    `Ruote gratis stagione: ${o.gratisStagione} (già usate prima di questo ordine: ${o.gratisUsatePrima})`, ''];
   for (const r of o.righe) {
     const p = [];
     if (r.gratis) p.push(`${r.gratis} GRATIS`);
@@ -229,6 +273,7 @@ function riepilogo(o) {
     L.push(`- ${r.nome} (cod. ${r.codice}) x ${r.qta}  →  ${p.join(' + ')}`);
   }
   L.push('', `TOTALE: ${o.totale} ruote (${o.totaleGratis} gratis, ${o.totalePagamento} a pagamento)`);
+  L.push(`Ruote gratis ancora disponibili: ${Math.max(o.gratisStagione - o.gratisUsatePrima - o.totaleGratis, 0)}`);
   if (o.note) L.push('', 'Note: ' + o.note);
   return L.join('\n');
 }
@@ -236,23 +281,23 @@ function riepilogo(o) {
 async function send() {
   const b = $('#send'); b.disabled = true; b.textContent = 'Invio in corso…'; $('#send-err').hidden = true;
   try {
-    const { ordine } = await N.json('/api/ordini', {
+    const d = await N.json('/api/ordini', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ atleta: me.id, righe: cart, note: $('#note').value })
     });
-    existing = ordine;
+    const o = d.ordine; applica(d);
     let mailOk = true;
     try {
       const r = await fetch('/', {
         method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: new URLSearchParams({ 'form-name': 'ordine-ruote', subject: `Ordine ruote – ${ordine.nome}${ordine.modifiche ? ' (modificato)' : ''}`, atleta: ordine.nome, riepilogo: riepilogo(ordine) }).toString()
+        body: new URLSearchParams({ 'form-name': 'ordine-ruote', subject: `Ordine ruote n. ${o.numero} – ${o.nome}`, atleta: o.nome, riepilogo: riepilogo(o) }).toString()
       });
       mailOk = r.ok;
     } catch { mailOk = false; }
-    $('#done-txt').innerHTML = `Grazie <b>${N.esc(me.nome)}</b>! Il tuo ordine di <b>${ordine.totale} ruote</b> è stato registrato.`;
+    cart = []; $('#note').value = ''; $('#confirm').hidden = true;
+    $('#done-txt').innerHTML = `Grazie <b>${N.esc(me.nome)}</b>! Il tuo ordine n. ${o.numero} di <b>${o.totale} ruote</b> è stato registrato.`;
     $('#done-mail').textContent = mailOk ? "L'amministrazione riceverà il riepilogo via email." : "L'ordine è salvato, ma l'email di avviso non è partita: avvisa tu l'amministrazione.";
-    $('#done-list').innerHTML = ordine.righe.map(r => `<div class="line"><h3>${N.esc(r.nome)} × ${r.qta}</h3><div class="alloc">
-      ${r.gratis ? `<div class="free"><span>${r.gratis}</span><b>GRATIS</b></div>` : ''}${r.pagamento ? `<div class="paid"><span>${r.pagamento}</span><b>A PAGAMENTO</b></div>` : ''}</div></div>`).join('');
+    $('#done-order').innerHTML = orderHtml(o);
     show('done');
   } catch (e) {
     $('#send-err').textContent = "L'ordine non è stato inviato: " + e.message + '. Controlla la connessione e riprova.';
@@ -265,17 +310,19 @@ document.addEventListener('click', e => {
   if (s) { setQty(s.dataset.c, qtyOf(s.dataset.c) + Number(s.dataset.step)); return; }
   const fb = e.target.closest('[data-diam]');
   if (fb) { diam = fb.dataset.diam; renderGrid(); return; }
+  const nav = e.target.closest('[data-nav]');
+  if (nav) { show(nav.dataset.nav); return; }
   const a = e.target.closest('.athlete');
   if (a) select(a.dataset.id);
 });
 $('#change').onclick = () => { me = null; cart = []; show('choose'); };
+$('#go-history').onclick = () => show('history');
 $('#q').oninput = e => { filtro = e.target.value; renderGrid(); };
-$('#go-cart').onclick = () => { renderCart(); show('cart'); };
-$('#back').onclick = () => { show('shop'); renderGrid(); renderBar(); };
+$('#go-cart').onclick = () => show('cart');
+$('#back').onclick = () => show('shop');
 $('#ask').onclick = () => { $('#confirm').hidden = false; $('#confirm').scrollIntoView({ behavior: 'smooth', block: 'center' }); };
 $('#cancel').onclick = () => { $('#confirm').hidden = true; };
 $('#send').onclick = send;
-$('#again').onclick = () => select(me.id);
 init();
 </script>
 </body>
