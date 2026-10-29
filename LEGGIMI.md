@@ -6,7 +6,7 @@ Web app per far scegliere le ruote ai 12 atleti del team.
   Scelgono il proprio nome (nessuna password), le ruote e le quantità, poi convalidano l'ordine.
   Le ruote gratis valgono per tutta la stagione: le prime sono **GRATIS**, le successive **A PAGAMENTO**.
   - Tutti: **8** ruote gratis.
-  - Falcioni e Illuminati: **16** con Piper, Black Magic e Hydrogen; se scelgono anche una sola ruota **Manao** il limite scende a **12** per tutte le ruote (le Manao sono gratis per prime). Regole in `public/regole.js`.
+  - Falcioni e Illuminati: **16** con Piper, Black Magic e Hydrogen; se scelgono anche una sola ruota **Manao** (Niu o Kao) il limite scende a **12** per tutte le ruote (le Manao sono gratis per prime). Regole in `public/regole.js`.
   Un ordine convalidato non si modifica: per altre ruote si fa un nuovo ordine. In "I miei ordini" l'atleta vede lo storico e lo stato (In attesa / Ordinato).
   Link personale: `https://<tuo-sito>.netlify.app/?atleta=falcioni`
 - **Amministratore** → `https://<tuo-sito>.netlify.app/admin.html`

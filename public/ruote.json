@@ -184,6 +184,50 @@
       },
       "manao": true,
       "img": "https://www.bimarskates.com/16799-large_default/MANAO-WHEELS-NIU-110MM-1-PCS-.jpg"
+    },
+    {
+      "codice": "MANAO-KAO-100-MEDIE",
+      "nome": "Manao Kao Medie 100",
+      "dettagli": {
+        "Marca": "Manao Kao",
+        "Diametro": "100 mm",
+        "Durezza": "X (medie)"
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16800-large_default/MANAO-WHEELS-KAO-100MM-1-PCS-.jpg"
+    },
+    {
+      "codice": "MANAO-KAO-100-HARD",
+      "nome": "Manao Kao Hard 100",
+      "dettagli": {
+        "Marca": "Manao Kao",
+        "Diametro": "100 mm",
+        "Durezza": "XX (hard)"
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16800-large_default/MANAO-WHEELS-KAO-100MM-1-PCS-.jpg"
+    },
+    {
+      "codice": "MANAO-KAO-110-MEDIE",
+      "nome": "Manao Kao Medie 110",
+      "dettagli": {
+        "Marca": "Manao Kao",
+        "Diametro": "110 mm",
+        "Durezza": "X (medie)"
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16798-large_default/MANAO-WHEELS-KAO-110MM-1-PCS-.jpg"
+    },
+    {
+      "codice": "MANAO-KAO-110-HARD",
+      "nome": "Manao Kao Hard 110",
+      "dettagli": {
+        "Marca": "Manao Kao",
+        "Diametro": "110 mm",
+        "Durezza": "XX (hard)"
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16798-large_default/MANAO-WHEELS-KAO-110MM-1-PCS-.jpg"
     }
   ]
 }
