@@ -3,7 +3,8 @@
     "id": "falcioni",
     "nome": "Viola",
     "cognome": "Falcioni",
-    "gratis": 12
+    "gratis": 16,
+    "gratisManao": 12
   },
   {
     "id": "fava",
@@ -15,7 +16,8 @@
     "id": "illuminati",
     "nome": "Chiara",
     "cognome": "Illuminati",
-    "gratis": 12
+    "gratis": 16,
+    "gratisManao": 12
   },
   {
     "id": "libetti",

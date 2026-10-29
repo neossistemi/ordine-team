@@ -1,5 +1,6 @@
 // API ordini ruote (Netlify Blobs). Ogni ordine convalidato resta nello storico.
-// Le ruote gratis (8, o 12) valgono per tutta la stagione: si consumano ordine dopo ordine.
+// Le ruote gratis valgono per tutta la stagione e si consumano ordine dopo ordine (regole in public/regole.js:
+// 8 per atleta; Falcioni e Illuminati 16, ma 12 se scelgono anche ruote Manao, con le Manao gratis per prime).
 //   GET    /api/ordini?atleta=<id>        -> storico dell'atleta + ruote gratis rimaste
 //   POST   /api/ordini {atleta,righe,note} -> nuovo ordine
 //   GET    /api/ordini?tutti=1            -> tutti gli ordini          (header x-admin-password)
@@ -7,6 +8,8 @@
 //   DELETE /api/ordini?ordine=<chiave>    -> elimina un ordine         (header x-admin-password)
 import { getStore } from "@netlify/blobs";
 import atleti from "../../public/atleti.json";
+import "../../public/regole.js";
+const { calcola, stagione } = globalThis.REGOLE;
 
 const ATL = Object.fromEntries(atleti.map(a => [a.id, a]));
 const store = () => getStore({ name: "ordini-ruote", consistency: "strong" });
@@ -17,14 +20,6 @@ const json = (data, status = 200) =>
     headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
   });
 
-export function alloca(righe, gratis) {
-  let resto = gratis;
-  return righe.map(r => {
-    const g = Math.min(r.qta, Math.max(resto, 0));
-    resto -= g;
-    return { codice: r.codice, nome: r.nome, qta: r.qta, gratis: g, pagamento: r.qta - g };
-  });
-}
 const somma = righe => righe.reduce((s, r) => ({ tot: s.tot + r.qta, g: s.g + r.gratis, p: s.p + r.pagamento }), { tot: 0, g: 0, p: 0 });
 
 function controllaAdmin(req) {
@@ -47,12 +42,11 @@ async function ordiniAtleta(s, id) {
 
 // Ricalcola gratis/a pagamento in ordine cronologico (serve dopo l'eliminazione di un ordine)
 async function ricalcola(s, id) {
-  const a = ATL[id]; let usate = 0; const out = [];
+  const a = ATL[id]; const out = [];
   const lista = await ordiniAtleta(s, id);
   for (const [i, o] of lista.entries()) {
-    const righe = alloca(o.righe, a.gratis - usate), t = somma(righe);
-    const nuovo = { ...o, numero: i + 1, gratisStagione: a.gratis, gratisUsatePrima: usate, righe, totale: t.tot, totaleGratis: t.g, totalePagamento: t.p };
-    usate += t.g;
+    const c = calcola(a, o.righe, out), t = somma(c.righe);
+    const nuovo = { ...o, numero: i + 1, gratisStagione: c.limite, limiteManao: c.limiteManao, gratisUsatePrima: c.usatePrima, righe: c.righe, totale: t.tot, totaleGratis: t.g, totalePagamento: t.p };
     if (JSON.stringify(nuovo) !== JSON.stringify(o)) { const { chiave, ...dati } = nuovo; await s.setJSON(o.chiave, dati); }
     out.push(nuovo);
   }
@@ -60,8 +54,8 @@ async function ricalcola(s, id) {
 }
 
 const riepilogoAtleta = (a, ordini) => {
-  const usate = ordini.reduce((s, o) => s + o.totaleGratis, 0);
-  return { gratisStagione: a.gratis, gratisUsate: usate, gratisRestanti: Math.max(a.gratis - usate, 0) };
+  const st = stagione(a, ordini);
+  return { gratisStagione: st.limite, limiteManao: st.limiteManao, gratisUsate: st.usate, gratisRestanti: st.restanti };
 };
 
 export default async (req) => {
@@ -94,14 +88,13 @@ export default async (req) => {
     if (!righe.length) return json({ errore: "Il carrello è vuoto." }, 400);
 
     const prima = await ordiniAtleta(s, a.id);
-    const usate = prima.reduce((n, o) => n + o.totaleGratis, 0);
-    const allocate = alloca(righe, a.gratis - usate), t = somma(allocate);
+    const c = calcola(a, righe, prima), t = somma(c.righe);
     const ora = new Date().toISOString();
     const chiave = `ordine-${a.id}-${Date.now()}`;
     const ordine = {
       atleta: a.id, nome: `${a.nome} ${a.cognome}`, numero: prima.length + 1,
-      gratisStagione: a.gratis, gratisUsatePrima: usate,
-      righe: allocate, totale: t.tot, totaleGratis: t.g, totalePagamento: t.p,
+      gratisStagione: c.limite, limiteManao: c.limiteManao, gratisUsatePrima: c.usatePrima,
+      righe: c.righe, totale: t.tot, totaleGratis: t.g, totalePagamento: t.p,
       note: String(body.note ?? "").slice(0, 1000).trim(),
       inviatoIl: ora,
       stato: "da_ordinare",

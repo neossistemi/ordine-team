@@ -107,3 +107,10 @@ textarea{width:100%;min-height:80px;padding:10px 12px;border:1px solid var(--lin
 .hist{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:grid;gap:8px}
 .hist-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:8px;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .hist-row{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px}
+.chip.manao{background:#efe6fb;color:#6b2bb5;margin-top:6px}
+.manao-box{border-color:#8b5cf6;background:#f5f0ff;color:#4c1d95;margin-bottom:4px}
+/* foto ruote (dal sito Bimar Skates) */
+.pic{background:#fff;border-radius:10px;height:170px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--line)}
+.pic img{max-width:85%;max-height:90%;object-fit:contain}
+.lh{display:flex;gap:12px;align-items:center;min-width:0}
+.thumb{width:56px;height:56px;object-fit:contain;background:#fff;border:1px solid var(--line);border-radius:8px;flex:none}

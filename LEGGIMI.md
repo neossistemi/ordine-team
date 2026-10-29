@@ -4,7 +4,9 @@ Web app per far scegliere le ruote ai 12 atleti del team.
 
 - **Atleti** → `https://<tuo-sito>.netlify.app/`
   Scelgono il proprio nome (nessuna password), le ruote e le quantità, poi convalidano l'ordine.
-  Le ruote gratis valgono per tutta la stagione (8, oppure 12 per Falcioni e Illuminati): le prime sono **GRATIS**, le successive **A PAGAMENTO**.
+  Le ruote gratis valgono per tutta la stagione: le prime sono **GRATIS**, le successive **A PAGAMENTO**.
+  - Tutti: **8** ruote gratis.
+  - Falcioni e Illuminati: **16** con Piper, Black Magic e Hydrogen; se scelgono anche una sola ruota **Manao** il limite scende a **12** per tutte le ruote (le Manao sono gratis per prime). Regole in `public/regole.js`.
   Un ordine convalidato non si modifica: per altre ruote si fa un nuovo ordine. In "I miei ordini" l'atleta vede lo storico e lo stato (In attesa / Ordinato).
   Link personale: `https://<tuo-sito>.netlify.app/?atleta=falcioni`
 - **Amministratore** → `https://<tuo-sito>.netlify.app/admin.html`
@@ -23,6 +25,7 @@ Web app per far scegliere le ruote ai 12 atleti del team.
 | `public/atleti.json` | Elenco atleti e numero di ruote gratis di ciascuno |
 | `public/ruote.json` | Elenco ruote (dal file MATERIALE_DA_ORDINARE) |
 | `public/app.css`, `public/common.js` | Grafica e funzioni comuni |
+| `public/regole.js` | Regole delle ruote gratis (limite Manao) |
 | `netlify/functions/ordini.mjs` | Salvataggio ordini (Netlify Blobs) |
 | `netlify.toml`, `package.json` | Configurazione Netlify |
 
@@ -45,5 +48,5 @@ Web app per far scegliere le ruote ai 12 atleti del team.
 
 ## Modifiche frequenti
 
-- **Ruote gratis per atleta**: cambia il numero `gratis` in `public/atleti.json`.
-- **Elenco ruote**: `public/ruote.json` (lo genero io dal file Excel).
+- **Ruote gratis per atleta**: cambia `gratis` (e `gratisManao` per il limite con le Manao) in `public/atleti.json`.
+- **Elenco ruote**: `public/ruote.json` (lo genero io dal file Excel). Il campo `img` è il link alla foto sul sito Bimar Skates: se una foto non si carica, la scheda resta senza immagine.

@@ -8,7 +8,8 @@
         "Marca": "Hydrogen Pro",
         "Diametro": "100 mm",
         "Durezza": "X Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/9192-large_default/ROLLERBLADE-MPC-HYDROGEN-PRO-100MM-1-PCS.jpg"
     },
     {
       "codice": "HYDROGEN-PRO-100-XX",
@@ -17,7 +18,8 @@
         "Marca": "Hydrogen Pro",
         "Diametro": "100 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/9192-large_default/ROLLERBLADE-MPC-HYDROGEN-PRO-100MM-1-PCS.jpg"
     },
     {
       "codice": "HYDROGEN-PRO-110-X",
@@ -26,7 +28,8 @@
         "Marca": "Hydrogen Pro",
         "Diametro": "110 mm",
         "Durezza": "X Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/9178-large_default/ROLLERBLADE-MPC-HYDROGEN-PRO-110MM-1-PCS.jpg"
     },
     {
       "codice": "HYDROGEN-PRO-110-XX",
@@ -35,7 +38,8 @@
         "Marca": "Hydrogen Pro",
         "Diametro": "110 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/9178-large_default/ROLLERBLADE-MPC-HYDROGEN-PRO-110MM-1-PCS.jpg"
     },
     {
       "codice": "BLACK-MAGIC-100-X",
@@ -44,7 +48,8 @@
         "Marca": "Black Magic",
         "Diametro": "100 mm",
         "Durezza": "X Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/11007-large_default/MPC-WHEELS-BLACK-MAGIC-100MM-1PCS.jpg"
     },
     {
       "codice": "BLACK-MAGIC-100-XX",
@@ -53,7 +58,8 @@
         "Marca": "Black Magic",
         "Diametro": "100 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/11007-large_default/MPC-WHEELS-BLACK-MAGIC-100MM-1PCS.jpg"
     },
     {
       "codice": "BLACK-MAGIC-110-X",
@@ -62,7 +68,8 @@
         "Marca": "Black Magic",
         "Diametro": "110 mm",
         "Durezza": "X Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/11003-large_default/MPC-WHEELS-BLACK-MAGIC-110MM-1PCS.jpg"
     },
     {
       "codice": "BLACK-MAGIC-110-XX",
@@ -71,7 +78,8 @@
         "Marca": "Black Magic",
         "Diametro": "110 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/11003-large_default/MPC-WHEELS-BLACK-MAGIC-110MM-1PCS.jpg"
     },
     {
       "codice": "PIPER-TORCH-100-X",
@@ -80,7 +88,8 @@
         "Marca": "Piper Torch Pro",
         "Diametro": "100 mm",
         "Durezza": "X Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/12646-large_default/PIPER-WHEELS-TORCH-PRO-100MM-1-PCS.jpg"
     },
     {
       "codice": "PIPER-TORCH-100-XX",
@@ -89,7 +98,8 @@
         "Marca": "Piper Torch Pro",
         "Diametro": "100 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/12646-large_default/PIPER-WHEELS-TORCH-PRO-100MM-1-PCS.jpg"
     },
     {
       "codice": "PIPER-TORCH-110-X",
@@ -98,7 +108,8 @@
         "Marca": "Piper Torch Pro",
         "Diametro": "110 mm",
         "Durezza": "X Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/12511-large_default/PIPER-WHEELS-TORCH-PRO-110MM-1-PCS.jpg"
     },
     {
       "codice": "PIPER-TORCH-110-XX",
@@ -107,7 +118,8 @@
         "Marca": "Piper Torch Pro",
         "Diametro": "110 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/12511-large_default/PIPER-WHEELS-TORCH-PRO-110MM-1-PCS.jpg"
     },
     {
       "codice": "PIPER-TIME-100-XX",
@@ -116,7 +128,8 @@
         "Marca": "Piper Time Pro",
         "Diametro": "100 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/14869-large_default/PIPER-WHEELS-TIME-PRO-100MM-1-PCS.jpg"
     },
     {
       "codice": "PIPER-TIME-110-XX",
@@ -125,7 +138,8 @@
         "Marca": "Piper Time Pro",
         "Diametro": "110 mm",
         "Durezza": "XX Firm"
-      }
+      },
+      "img": "https://www.bimarskates.com/14866-large_default/PIPER-WHEELS-TIME-PRO-110MM-1-PCS.jpg"
     },
     {
       "codice": "MANAO-NIU-100-MEDIE",
@@ -134,7 +148,9 @@
         "Marca": "Manao Niu",
         "Diametro": "100 mm",
         "Durezza": "X (medie)"
-      }
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16792-large_default/MANAO-WHEELS-NIU-100MM-1-PCS-.jpg"
     },
     {
       "codice": "MANAO-NIU-100-HARD",
@@ -143,7 +159,9 @@
         "Marca": "Manao Niu",
         "Diametro": "100 mm",
         "Durezza": "XX (hard)"
-      }
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16792-large_default/MANAO-WHEELS-NIU-100MM-1-PCS-.jpg"
     },
     {
       "codice": "MANAO-NIU-110-MEDIE",
@@ -152,7 +170,9 @@
         "Marca": "Manao Niu",
         "Diametro": "110 mm",
         "Durezza": "X (medie)"
-      }
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16799-large_default/MANAO-WHEELS-NIU-110MM-1-PCS-.jpg"
     },
     {
       "codice": "MANAO-NIU-110-HARD",
@@ -161,7 +181,9 @@
         "Marca": "Manao Niu",
         "Diametro": "110 mm",
         "Durezza": "XX (hard)"
-      }
+      },
+      "manao": true,
+      "img": "https://www.bimarskates.com/16799-large_default/MANAO-WHEELS-NIU-110MM-1-PCS-.jpg"
     }
   ]
 }

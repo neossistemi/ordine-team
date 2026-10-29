@@ -115,10 +115,12 @@
 </div>
 
 <script src="common.js"></script>
+<script src="regole.js"></script>
 <script>
 const N = NEOS, $ = s => document.querySelector(s);
 let ATLETI = [], RUOTE = [], me = null, cart = [], filtro = '', diam = '';
-let ORD = [], restanti = 0;   // storico dell'atleta e ruote gratis ancora disponibili nella stagione
+let ORD = [];   // storico dell'atleta (le ruote gratis si calcolano con REGOLE, vedi regole.js)
+const C = () => REGOLE.calcola(me, cart, ORD), S = () => REGOLE.stagione(me, ORD);
 const store = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 
 function show(v) {
@@ -147,25 +149,34 @@ async function init() {
 }
 
 function applica(d) {
-  ORD = d.ordini || []; restanti = d.gratisRestanti ?? me.gratis;
+  ORD = d.ordini || [];
   $('#n-ord').textContent = ORD.length ? `(${ORD.length})` : '';
 }
 
 async function select(id) {
   me = ATLETI.find(a => a.id === id); store.set('atleta', id);
   $('#who-name').textContent = `${me.nome} ${me.cognome}`;
-  cart = []; $('#note').value = ''; ORD = []; restanti = me.gratis; $('#n-ord').textContent = '';
+  cart = []; $('#note').value = ''; ORD = []; $('#n-ord').textContent = '';
   show('shop');
   try { applica(await N.json('/api/ordini?atleta=' + encodeURIComponent(id))); } catch {}
   if (me && me.id === id && !$('#v-shop').hidden) { renderRule(); renderBar(); }
 }
 
 function renderRule() {
-  $('#rule').innerHTML = restanti > 0
-    ? `Hai ancora <b>${restanti} ${restanti === 1 ? 'ruota' : 'ruote'}</b> <span class="chip free">gratis</span> per questa stagione. Le ruote oltre questo numero sono <span class="chip paid">a pagamento</span>`
-    : `Hai già usato tutte le ruote gratis della stagione: le ruote di questo ordine sono <span class="chip paid">a pagamento</span>`;
+  const st = S(), ruote = n => `${n} ${n === 1 ? 'ruota' : 'ruote'}`;
+  const pag = '<span class="chip paid">a pagamento</span>', gr = '<span class="chip free">gratis</span>';
+  if (me.gratisManao && !st.limiteManao) {
+    const altre = Math.max(me.gratis - st.usate, 0), manao = Math.max(me.gratisManao - st.usate, 0);
+    $('#rule').innerHTML = `Hai ancora <b>${ruote(altre)}</b> ${gr} con Piper, Black Magic e Hydrogen.<br>
+      Se scegli anche ruote <b>Manao</b> le ruote gratis sono al massimo <b>${me.gratisManao}</b>${st.usate ? ` (te ne restano ${manao})` : ''}: le Manao sono gratis per prime. Le altre sono ${pag}`;
+  } else if (st.restanti > 0) {
+    $('#rule').innerHTML = `Hai ancora <b>${ruote(st.restanti)}</b> ${gr} per questa stagione${st.limiteManao ? ` (massimo ${me.gratisManao} perché hai scelto ruote Manao)` : ''}. Le ruote oltre questo numero sono ${pag}`;
+  } else {
+    $('#rule').innerHTML = `Hai già usato tutte le ruote gratis della stagione: le ruote di questo ordine sono ${pag}`;
+  }
 }
 
+const imgOf = c => (RUOTE.find(r => r.codice === c) || {}).img || '';
 const qtyOf = c => (cart.find(r => r.codice === c) || {}).qta || 0;
 function setQty(codice, q) {
   q = Math.max(0, Math.min(99, q));
@@ -198,7 +209,8 @@ function renderGrid() {
     const specs = Object.entries(r.dettagli || {}).filter(([, v]) => v !== '' && v != null)
       .map(([k, v]) => `<li><b>${N.esc(k)}</b> ${N.esc(v)}</li>`).join('');
     return `<article class="wheel ${q ? 'in' : ''}">
-      <div><div class="code">${N.esc(r.codice)}</div><h3>${N.esc(r.nome)}</h3></div>
+      ${r.img ? `<div class="pic"><img src="${N.esc(r.img)}" alt="${N.esc(r.nome)}" loading="lazy" onerror="this.parentNode.remove()"></div>` : ''}
+      <div><div class="code">${N.esc(r.codice)}</div><h3>${N.esc(r.nome)}</h3>${me?.gratisManao && REGOLE.isManao(r) ? `<span class="chip manao">Con Manao max ${me.gratisManao} gratis</span>` : ''}</div>
       ${specs ? `<ul class="specs">${specs}</ul>` : ''}
       <div class="row">${q ? '<span class="chip incart">Nel carrello</span>' : '<span class="muted small">Quantità</span>'}${stepper(r.codice, q)}</div>
     </article>`;
@@ -206,7 +218,7 @@ function renderGrid() {
 }
 
 function renderBar() {
-  const t = N.totali(N.alloca(cart, restanti));
+  const t = N.totali(C().righe);
   $('#bar-sum').innerHTML = t.tot
     ? `<strong>${t.tot}</strong> ruote ${t.gratis ? `<span class="chip free">${t.gratis} gratis</span>` : ''}${t.pagamento ? `<span class="chip paid">${t.pagamento} a pagamento</span>` : ''}`
     : `<span>Nessuna ruota scelta</span>`;
@@ -221,9 +233,11 @@ function allocHtml(r) {
 }
 
 function renderCart() {
-  const righe = N.alloca(cart, restanti), t = N.totali(righe);
+  const c = C(), righe = c.righe, t = N.totali(righe), restanti = c.disponibili;
   const scala = Math.max(t.tot, restanti, 1);
-  $('#meter').innerHTML = `
+  const avviso = me.gratisManao && c.limiteManao
+    ? `<div class="note-box manao-box">Hai scelto ruote <b>Manao</b>: le ruote gratis della stagione sono al massimo <b>${me.gratisManao}</b> invece di ${me.gratis}. Le Manao sono gratis per prime.</div>` : '';
+  $('#meter').innerHTML = avviso + `
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
       <span>Ruote gratis in questo ordine: <b>${t.gratis}</b>${restanti ? ` (disponibili ${restanti})` : ''}</span>
       <span><b>${t.tot}</b> ruote in totale</span>
@@ -232,7 +246,7 @@ function renderCart() {
     <div class="small muted">${t.pagamento ? `<span class="chip paid">${t.pagamento} a pagamento</span> oltre le ruote gratis` : restanti - t.gratis > 0 ? `Puoi scegliere ancora ${restanti - t.gratis} ruote gratis.` : 'Hai usato tutte le ruote gratis.'}</div>`;
   $('#cart').innerHTML = righe.map(r => `
     <div class="line">
-      <div class="line-head"><div><div class="code muted small">${N.esc(r.codice)}</div><h3>${N.esc(r.nome)}</h3></div>${stepper(r.codice, r.qta)}</div>
+      <div class="line-head"><div class="lh">${imgOf(r.codice) ? `<img class="thumb" src="${N.esc(imgOf(r.codice))}" alt="" onerror="this.remove()">` : ''}<div><div class="code muted small">${N.esc(r.codice)}</div><h3>${N.esc(r.nome)}</h3></div></div>${stepper(r.codice, r.qta)}</div>
       ${allocHtml(r)}
     </div>`).join('');
   $('#cart-empty').hidden = !!righe.length;
@@ -253,12 +267,13 @@ function orderHtml(o) {
 }
 
 function renderHistory() {
-  const usate = me.gratis - restanti, tot = ORD.reduce((s, o) => s + o.totale, 0);
+  const st = S(), usate = st.usate, lim = st.limite, tot = ORD.reduce((s, o) => s + o.totale, 0);
+  const nota = me.gratisManao ? (st.limiteManao ? ' (limite Manao)' : ` (${me.gratisManao} con ruote Manao)`) : '';
   $('#season').innerHTML = `
     <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap">
-      <span>Ruote gratis della stagione usate: <b>${usate} di ${me.gratis}</b></span><span><b>${tot}</b> ruote ordinate</span>
+      <span>${usate > lim ? `Ruote gratis della stagione usate: <b>${usate}</b> (con le Manao il limite è ${lim}: le nuove ruote sono a pagamento)` : `Ruote gratis della stagione usate: <b>${usate} di ${lim}</b>${nota}`}</span><span><b>${tot}</b> ruote ordinate</span>
     </div>
-    <div class="meter-track" aria-hidden="true"><i class="f" style="width:${usate / me.gratis * 100}%"></i></div>`;
+    <div class="meter-track" aria-hidden="true"><i class="f" style="width:${Math.min(usate / lim, 1) * 100}%"></i></div>`;
   $('#history').innerHTML = ORD.length
     ? [...ORD].reverse().map(orderHtml).join('')
     : '<p class="muted">Non hai ancora inviato ordini.</p>';
@@ -279,7 +294,7 @@ function campiEmail(o) {
     ordine: `N. ${o.numero} del ${N.data(o.inviatoIl).replace(',', ' alle')}  `,
     totale: `${o.totale} ruote   ▸   🟩 ${o.totaleGratis} GRATIS   ▸   🟧 ${o.totalePagamento} A PAGAMENTO  `,
     ruote: righe.join('\n\n'),
-    stagione: `Ruote gratis della stagione: ${o.gratisStagione}   ·   usate prima di questo ordine: ${o.gratisUsatePrima}   ·   rimaste: ${rimaste}  `,
+    stagione: `Ruote gratis della stagione: ${o.gratisStagione}${o.limiteManao ? ' (limite Manao)' : me.gratisManao ? ` (${me.gratisManao} con ruote Manao)` : ''}   ·   usate prima di questo ordine: ${o.gratisUsatePrima}   ·   rimaste: ${rimaste}  `,
   };
   if (o.note) campi.note = o.note;
   return campi;
