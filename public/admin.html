@@ -52,6 +52,27 @@
   .seg button{border:0;background:none;padding:8px 14px;font-weight:700;color:var(--muted)}
   .seg button[aria-pressed=true]{background:var(--navy);color:#fff}
   .print-head{display:none}
+  /* ---- scheda "Ruote da ordinare" ---- */
+  .ord-top{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin-bottom:4px}
+  .ord-sw{display:inline-flex;align-items:center;gap:8px;font-weight:600;color:var(--muted);font-size:14px;cursor:pointer}
+  .ord-sw input{width:17px;height:17px;accent-color:var(--navy)}
+  .marca{margin-top:18px;break-inside:avoid}
+  .marca > h3{margin:0 0 6px;display:flex;align-items:baseline;gap:10px;color:var(--navy);font-style:italic;font-weight:800;font-size:21px}
+  .marca > h3 em{font-style:normal;font-size:13px;font-weight:600;font-family:var(--f-body,Barlow),sans-serif;color:var(--muted);text-transform:none;letter-spacing:.02em}
+  .marca table{background:#fff}
+  .marca th{border-bottom:1.5px solid var(--navy)}
+  td.q{font-weight:700;font-size:17px;color:var(--navy)}
+  td.box,th.box{width:30px}
+  .sq{display:inline-block;width:15px;height:15px;border:1.5px solid var(--muted);border-radius:3px;vertical-align:-2px}
+  .cod{font-size:12px;color:var(--muted)}
+  tr.rtot td{border-bottom:0;border-top:1.5px solid var(--navy);font-weight:700;padding-top:7px}
+  tr.rtot td.q{font-size:18px}
+  .generale{display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-top:22px;border-top:3px solid var(--navy);padding-top:12px}
+  .generale b{font:800 italic 22px/1 var(--f-display);text-transform:uppercase;color:var(--navy)}
+  .generale .q{font:800 italic 34px/1 var(--f-display);color:var(--pink);font-variant-numeric:tabular-nums}
+  .ord-piede{margin-top:14px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:8px}
+  .dett{margin-top:26px}
+  .dett > h3{margin:0 0 8px;color:var(--navy);font-style:italic;font-weight:800;font-size:21px}
   .toast{position:fixed;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:999px;z-index:9}
   @media print{
     @page{size:A4;margin:14mm}
@@ -72,6 +93,9 @@
     body.p-group .group:not(.printing){display:none!important}
     body.p-totals [data-panel]{display:none!important}
     body.p-totals #tab-totals{display:block!important}
+    .marca{break-inside:avoid}
+    .dett{break-before:page}
+    .sq{-webkit-print-color-adjust:exact;print-color-adjust:exact}
   }
 </style>
 </head>
@@ -124,12 +148,27 @@
 <script>
 const N = NEOS, $ = s => document.querySelector(s);
 let PW = '', DATA = { ordini: [], atleti: [] }, pending = null, filtro = '', totMode = 'todo', tab = 'todo';
+let totGroup = 'marca', totNomi = false, RUOTE = {}, ORDINE_MARCHE = [];
 const ss = { get(k) { try { return sessionStorage.getItem(k) || ''; } catch { return ''; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch {} }, del(k) { try { sessionStorage.removeItem(k); } catch {} } };
 const H = () => ({ 'x-admin-password': PW, 'Content-Type': 'application/json' });
 
 function toast(t) { const d = document.createElement('div'); d.className = 'toast'; d.textContent = t; document.body.append(d); setTimeout(() => d.remove(), 2200); }
 
+// marca / diametro / durezza di ogni codice, presi da ruote.json
+async function caricaRuote() {
+  try {
+    const rj = await N.json('ruote.json');
+    (rj.ruote || []).forEach(r => {
+      const d = r.dettagli || {};
+      const m = d.Marca || 'Altre';
+      RUOTE[r.codice] = { marca: m, diam: d.Diametro || '', dur: d.Durezza || '' };
+      if (!ORDINE_MARCHE.includes(m)) ORDINE_MARCHE.push(m);
+    });
+  } catch (e) { /* senza ruote.json la scheda usa l'elenco unico */ }
+}
+
 async function load() {
+  if (!Object.keys(RUOTE).length) await caricaRuote();
   DATA = await N.json('/api/ordini?tutti=1', { headers: H() });
   $('#updated').textContent = 'Aggiornato alle ' + new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
   $('#filtro').innerHTML = '<option value="">Tutti</option>' + DATA.atleti.map(a => `<option value="${a.id}" ${a.id === filtro ? 'selected' : ''}>${N.esc(a.cognome)} ${N.esc(a.nome)}</option>`).join('');
@@ -249,16 +288,83 @@ function render() {
     per[k].tot += r.qta; per[k].g += r.gratis; per[k].p += r.pagamento; per[k].chi[o.nome] = (per[k].chi[o.nome] || 0) + r.qta;
   }
   const rows = Object.values(per).sort((a, b) => a.nome.localeCompare(b.nome));
+  const info = c => RUOTE[c] || { marca: 'Altre', diam: '', dur: '' };
+
+  // intestazione della scheda: periodo degli ordini e quanti atleti
+  const date = base2.map(o => o.inviatoIl).sort();
+  const gg = iso => N.data(iso).split(',')[0];
+  const periodo = date.length ? (gg(date[0]) === gg(date.at(-1)) ? `del ${gg(date[0])}` : `dal ${gg(date[0])} al ${gg(date.at(-1))}`) : '';
+  const quanti = new Set(base2.map(o => o.atleta)).size;
+  const sommario = `${base2.length} ${base2.length === 1 ? 'ordine' : 'ordini'} da ${quanti} ${quanti === 1 ? 'atleta' : 'atleti'}`;
+
+  // vista per marca: una tabella per marca, nell'ordine di ruote.json
+  function perMarca() {
+    const gruppi = {};
+    rows.forEach(r => { const m = info(r.codice).marca; (gruppi[m] ??= []).push(r); });
+    const nomi = Object.keys(gruppi).sort((a, b) => {
+      const ia = ORDINE_MARCHE.indexOf(a), ib = ORDINE_MARCHE.indexOf(b);
+      return (ia < 0 ? 99 : ia) - (ib < 0 ? 99 : ib) || a.localeCompare(b);
+    });
+    return nomi.map(m => {
+      const l = gruppi[m].slice().sort((a, b) => {
+        const A = info(a.codice), B = info(b.codice);
+        return A.diam.localeCompare(B.diam) || A.dur.localeCompare(B.dur) || a.nome.localeCompare(b.nome);
+      });
+      const q = l.reduce((x, r) => x + r.tot, 0);
+      return `<div class="marca"><h3>${N.esc(m)} <em>${l.length} ${l.length === 1 ? 'tipo' : 'tipi'} &middot; ${q} ${q === 1 ? 'ruota' : 'ruote'}</em></h3>
+        <div class="tbl"><table>
+          <thead><tr><th class="box"></th><th>Modello</th><th>Diametro</th><th>Durezza</th><th>Codice</th><th class="n">Q.t&agrave;</th></tr></thead>
+          <tbody>${l.map(r => { const d = info(r.codice); return `<tr>
+            <td class="box"><span class="sq"></span></td>
+            <td>${N.esc(m)}</td><td>${N.esc(d.diam) || '–'}</td><td>${N.esc(d.dur) || '–'}</td>
+            <td class="cod">${N.esc(r.codice)}</td><td class="n q">${r.tot}</td></tr>`; }).join('')}
+            <tr class="rtot"><td></td><td colspan="4">Totale ${N.esc(m)}</td><td class="n q">${q}</td></tr></tbody>
+        </table></div></div>`;
+    }).join('');
+  }
+
+  // vista elenco unico: una tabella sola, con gratis e a pagamento
+  function elencoUnico() {
+    return `<div class="tbl" style="background:#fff;border:1px solid var(--line);border-radius:var(--r)"><table>
+      <thead><tr><th class="box"></th><th>Ruota</th><th class="n">Gratis</th><th class="n">A pagamento</th><th class="n">Totale</th></tr></thead>
+      <tbody>${rows.map(r => `<tr><td class="box"><span class="sq"></span></td>
+        <td><b>${N.esc(r.nome)}</b><br><span class="cod">${N.esc(r.codice)}</span></td>
+        <td class="n">${r.g}</td><td class="n">${r.p}</td><td class="n q">${r.tot}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td></td><td>Totale</td><td class="n">${t2.g}</td><td class="n">${t2.p}</td><td class="n q">${t2.tot}</td></tr></tfoot>
+    </table></div>`;
+  }
+
+  // seconda pagina: chi ha ordinato cosa
+  function dettaglioNomi() {
+    return `<div class="dett"><h3>Chi ha ordinato cosa</h3>
+      <div class="tbl" style="background:#fff;border:1px solid var(--line);border-radius:var(--r)"><table>
+        <thead><tr><th>Ruota</th><th>Atleti</th><th class="n">Totale</th></tr></thead>
+        <tbody>${rows.map(r => `<tr><td><b>${N.esc(r.nome)}</b><br><span class="cod">${N.esc(r.codice)}</span></td>
+          <td class="small">${N.esc(Object.entries(r.chi).map(([n, q]) => `${n} (${q})`).join(', '))}</td>
+          <td class="n q">${r.tot}</td></tr>`).join('')}</tbody>
+      </table></div></div>`;
+  }
+
+  const titolo = (totMode === 'todo' ? 'Ruote da ordinare' : 'Totale ruote stagione') + (filtro ? ' – ' + N.esc(sel[0].nome + ' ' + sel[0].cognome) : '');
   $('#tab-totals').innerHTML = `
-    <div class="tab-intro no-print"><span class="muted">${totMode === 'todo' ? 'Ruote da chiedere al fornitore (solo ordini da ordinare).' : 'Tutte le ruote ordinate nella stagione.'}</span>
-      <div class="seg"><button data-tot="todo" aria-pressed="${totMode === 'todo'}">Da ordinare</button><button data-tot="all" aria-pressed="${totMode === 'all'}">Tutti gli ordini</button></div></div>
-    ${printHead((totMode === 'todo' ? 'Ruote da ordinare' : 'Totale ruote stagione') + (filtro ? ' – ' + N.esc(sel[0].nome + ' ' + sel[0].cognome) : ''))}
-    ${rows.length ? `<div class="tbl" style="background:#fff;border:1px solid var(--line);border-radius:var(--r)"><table>
-    <thead><tr><th>Ruota</th><th>Atleti</th><th class="n">Gratis</th><th class="n">A pagamento</th><th class="n">Totale</th></tr></thead>
-    <tbody>${rows.map(r => `<tr><td><b>${N.esc(r.nome)}</b><br><span class="small muted">${N.esc(r.codice)}</span></td>
-      <td class="small">${N.esc(Object.entries(r.chi).map(([n, q]) => `${n} (${q})`).join(', '))}</td>
-      <td class="n">${r.g}</td><td class="n">${r.p}</td><td class="n"><b>${r.tot}</b></td></tr>`).join('')}</tbody>
-    <tfoot><tr><td colspan="2">Totale</td><td class="n">${t2.g}</td><td class="n">${t2.p}</td><td class="n">${t2.tot}</td></tr></tfoot></table></div>` : '<p class="muted">Nessuna ruota.</p>'}`;
+    <div class="ord-top no-print">
+      <span class="muted">${totMode === 'todo' ? 'Ruote da chiedere al fornitore: somma di tutti gli ordini non evasi.' : 'Tutte le ruote ordinate nella stagione.'}</span>
+      <div class="actions" style="gap:8px;align-items:center">
+        <div class="seg"><button data-tot="todo" aria-pressed="${totMode === 'todo'}">Da ordinare</button><button data-tot="all" aria-pressed="${totMode === 'all'}">Tutti gli ordini</button></div>
+        <div class="seg"><button data-grp="marca" aria-pressed="${totGroup === 'marca'}">Per marca</button><button data-grp="uno" aria-pressed="${totGroup === 'uno'}">Elenco unico</button></div>
+        <label class="ord-sw"><input type="checkbox" id="sw-nomi" ${totNomi ? 'checked' : ''}> Stampa anche chi ha ordinato cosa</label>
+        <button class="btn small" id="stampa-ordine">Stampa l'ordine</button>
+      </div>
+    </div>
+    ${printHead(titolo)}
+    <div class="small muted no-print" style="margin:-4px 0 2px">${sommario}${periodo ? ' &middot; ' + periodo : ''}</div>
+    ${rows.length
+      ? (totGroup === 'marca' ? perMarca() : elencoUnico()) +
+        `<div class="generale"><b>Totale da ordinare</b><span class="q">${t2.tot} ${t2.tot === 1 ? 'ruota' : 'ruote'}</span></div>
+         <p class="ord-piede">${rows.length} ${rows.length === 1 ? 'tipo diverso' : 'tipi diversi'} &middot; ${sommario}${periodo ? ' &middot; ordini ' + periodo : ''}.
+         Le caselle a sinistra servono a spuntare le righe man mano che si inseriscono nell'ordine al fornitore.</p>` +
+        (totNomi ? dettaglioNomi() : '')
+      : '<p class="muted">Nessuna ruota.</p>'}`;
 }
 
 async function setStato(keys, stato) {
@@ -284,6 +390,8 @@ document.addEventListener('click', async e => {
     $('#print-tab').hidden = tab === 'links';
   }
   if (d.tot) { totMode = d.tot; render(); }
+  if (d.grp) { totGroup = d.grp; render(); }
+  if (t.id === 'stampa-ordine') doPrint('totals');
   if (d.printOne) doPrint('one', `.order[data-key="${CSS.escape(d.printOne)}"]`);
   if (d.printGroup) { const [st, id] = d.printGroup.split(':'); doPrint('group', `#tab-${st === 'ordinato' ? 'done' : 'todo'} .group[data-id="${CSS.escape(id)}"]`); }
   if (d.askDel) { pending = { act: 'del', key: d.askDel }; render(); }
@@ -306,6 +414,7 @@ document.addEventListener('click', async e => {
     try { await navigator.clipboard.writeText(d.copy); toast('Link copiato'); } catch { toast('Copia non riuscita: seleziona il link a mano'); }
   }
 });
+document.addEventListener('change', e => { if (e.target.id === 'sw-nomi') { totNomi = e.target.checked; render(); } });
 $('#filtro').onchange = e => { filtro = e.target.value; pending = null; render(); };
 $('#print-tab').onclick = () => doPrint(tab === 'totals' ? 'totals' : null);
 $('#reload').onclick = () => load().then(() => toast('Aggiornato')).catch(e => toast(e.message));

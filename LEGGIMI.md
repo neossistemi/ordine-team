@@ -12,7 +12,19 @@ Web app per far scegliere le ruote ai 12 atleti del team.
 - **Amministratore** → `https://<tuo-sito>.netlify.app/admin.html`
   - **Da ordinare**: ordini ricevuti; con **✓ Ordine evaso** passano in "Ordinati" (anche tutti insieme).
   - **Ordinati**: archivio per atleta; un ordine si può riportare in "Da ordinare".
-  - **Totale per ruota**: quante ruote chiedere al fornitore (solo da ordinare, oppure tutta la stagione).
+  - **Totale per ruota**: la scheda per fare l'ordine al fornitore. Somma tutte le ruote
+    degli ordini **non evasi** e le raggruppa **per marca** (Hydrogen Pro, Black Magic,
+    Piper Torch Pro, Piper Time Pro, Manao Niu, Manao Kao), con diametro, durezza, codice
+    e quantita', il totale di ogni marca e il totale generale. Ogni riga ha una casella da
+    spuntare mentre si compila l'ordine.
+    - **Per marca** / **Elenco unico**: due modi di vedere le stesse ruote. L'elenco unico
+      e' una tabella sola e mostra anche gratis e a pagamento.
+    - **Da ordinare** / **Tutti gli ordini**: solo i non evasi, oppure tutta la stagione.
+    - **"Stampa anche chi ha ordinato cosa"**: se la spunti, alla stampa si aggiunge una
+      seconda pagina con quale atleta ha chiesto cosa. Serve a controllare e a distribuire
+      le ruote quando arrivano; al fornitore non serve, per questo e' separata.
+    - **Stampa l'ordine** stampa solo questa scheda, senza menu ne' pulsanti.
+    Le marche escono nell'ordine in cui stanno in `public/ruote.json`.
   - **Atleti e link**: link personali, ordini fatti e ruote gratis rimaste.
   - Filtro per atleta, stampa di un ordine, di un atleta o della scheda intera; eliminazione con ricalcolo delle ruote gratis.
 
